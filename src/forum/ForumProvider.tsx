@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import type { ForumComment, ForumNotification, ForumPost, ForumReply, ForumUser } from './types';
+import type { ForumComment, ForumPost, ForumReply, ForumUser } from './types';
 import {
   addReplyToComment,
   formatTimeAgo,
@@ -63,7 +63,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         const alreadyHadWelcome = state.notifications.some(
           (n) => n.type === 'system' && n.toUserId === user.id && n.content.includes('欢迎')
         );
-        const nextNotifications = alreadyHadWelcome
+        const nextNotifications: ForumPersistedState['notifications'] = alreadyHadWelcome
           ? state.notifications
           : [
               ...state.notifications,
@@ -159,7 +159,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         );
 
         // 通知帖子作者
-        const nextNotifications =
+        const nextNotifications: ForumPersistedState['notifications'] =
           post.authorId !== authorId
             ? [
                 ...state.notifications,
@@ -200,7 +200,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
 
         // 通知评论作者
         const post = state.posts.find((p) => p.id === postId);
-        const nextNotifications =
+        const nextNotifications: ForumPersistedState['notifications'] =
           target.authorId !== authorId && post
             ? [
                 ...state.notifications,
