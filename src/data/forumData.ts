@@ -91,5 +91,14 @@ export const featuredPosts: Post[] = [
     avatar: 'YJ',
     category: '攻略秘籍',
     tags: ['艾尔登法环', 'DLC', 'Boss攻略'],
-    excerpt:
+    excerpt: '本帖详细整理了DLC所有隐藏Boss的路线与打法，适合探索党和成就党参考。',
+    likes: 120,
+    comments: 15,
+    views: 3500,
+    time: '2026-03-20',
+    image: '',
+    pinned: true,
+    hot: true,
+  },
+  // 可在此处继续添加更多帖子
       
