@@ -15,7 +15,7 @@ function makeUser(seed: string, avatarSeed: string, level: number): ForumUser {
   return {
     id: `u-${seed}`,
     username: seed,
-    password: '123456', // demo password
+    password: '123456',
     avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
     level,
   };
@@ -38,6 +38,88 @@ export const initialUsers: ForumUser[] = [
   makeUser('评测君', '17', 45),
 ];
 
-// 按你的要求：清空全站帖子（演示从“空数据”开始）
-export const initialPosts: ForumPost[] = [];
-
+// 丰富的演示帖子数据
+export const initialPosts: ForumPost[] = [
+  {
+    id: 'p-demo-1',
+    categoryId: 'cat-1',
+    title: '艾尔登法环 DLC「黄金树之影」全隐藏 Boss 路线图 — 深度探索指南',
+    content: '历经三个月的反复探索，我终于整理出了这份完整的隐藏Boss路线图。黄金树之影的地图设计堪称魂系列巅峰，层叠的地下遗迹与地上世界形成立体的空间感。本文将带你走遍每一个容易错过的区域，揭示隐藏在阴影树碎片之后的秘密……首先，进入DLC地图后不要急着向前推进，先在起始区域找到全部7块阴影树碎片的线索标记，每一块都对应一个独特的世界Boss。最难找到的是「幽冥骑士」的触发条件——你需要在特定的时辰站在月光照射的石柱下……',
+    excerpt: '历经三个月反复探索，整理出完整隐藏Boss路线图。黄金树之影的地图设计堪称魂系列巅峰，层叠地下遗迹与地上世界形成立体空间感。',
+    game: '艾尔登法环',
+    coverImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
+    tag: '攻略',
+    authorId: 'u-魂系玩家',
+    createdAtISO: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    stats: { views: 48200, likes: 3241, comments: 428 },
+  },
+  {
+    id: 'p-demo-2',
+    categoryId: 'cat-1',
+    title: '原神 4.7 版本新地图「千壑沙洲」全收集标注 — 我花了60小时做的地图',
+    content: '千壑沙洲是目前原神最大的沙漠地图，藏着大量秘境、传说任务和稀有收集品。本次更新后很多玩家反映地图太大容易迷路，我花了60个小时将所有收集点整理成高清标注地图……',
+    excerpt: '千壑沙洲是目前原神最大的沙漠地图，藏着大量秘境、传说任务和稀有收集品。60小时整理完成的全收集高清标注。',
+    game: '原神',
+    coverImage: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=800&q=80',
+    tag: '收集',
+    authorId: 'u-旅行者',
+    createdAtISO: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    stats: { views: 32100, likes: 2180, comments: 315 },
+  },
+  {
+    id: 'p-demo-3',
+    categoryId: 'cat-5',
+    title: '【新游体验】黑神话：悟空通关感想 — 这是国产游戏的里程碑时刻',
+    content: '通关之后坐在椅子上发了好久的呆。不是因为结局有多震撼，而是因为我意识到，国产游戏真的走到这一步了。从画面到战斗手感，从世界观构建到剧情表达，黑神话悟空几乎在每个维度都达到了AAA游戏的标准……',
+    excerpt: '通关之后坐在椅子上发了好久的呆。不是因为结局有多震撼，而是因为我意识到国产游戏真的走到这一步了。',
+    game: '黑神话：悟空',
+    coverImage: 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=800&q=80',
+    tag: '评测',
+    authorId: 'u-评测君',
+    createdAtISO: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
+    stats: { views: 91500, likes: 7820, comments: 1203 },
+  },
+  {
+    id: 'p-demo-4',
+    categoryId: 'cat-6',
+    title: '赛博朋克 2077 2.0 时代最强 Build 推荐 — 无脑割草「快刀客」流派',
+    content: '2.0版本后技能树大改，很多老BD都失效了。经过大量测试，这套快刀客流派是目前最爽的无脑割草体验。核心思路是利用神经反应加成叠满暴击，配合移动刃技能近身连续斩击……',
+    excerpt: '2.0版本技能树大改，老BD失效。经过大量测试，这套快刀客流派是目前最爽的无脑割草体验，核心是叠满暴击近身连斩。',
+    game: '赛博朋克 2077',
+    coverImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+    tag: 'Build',
+    authorId: 'u-游戏狂热者',
+    createdAtISO: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    stats: { views: 28400, likes: 1960, comments: 287 },
+  },
+  {
+    id: 'p-demo-5',
+    categoryId: 'cat-7',
+    title: '崩坏：星穹铁道 2.3 版本新角色强度评级 — 从T0到T4完整排行',
+    content: '新版本上线已经两周，各路大神的评测数据已经出来了。这次我综合了伤害测试、配队灵活性、对不同BOSS的适配性三个维度进行评级……阿卡丽毫无疑问是本版本最强输出，跟多几乎任何辅助都能打出极高伤害……',
+    excerpt: '新版本上线两周，综合伤害测试、配队灵活性、Boss适配性三维度评级。本文是迄今最详尽的角色强度分析。',
+    game: '崩坏：星穹铁道',
+    coverImage: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?w=800&q=80',
+    tag: '评级',
+    authorId: 'u-抽卡达人',
+    createdAtISO: new Date(Date.now() - 1000 * 60 * 60 * 16).toISOString(),
+    stats: { views: 55300, likes: 4100, comments: 632 },
+  },
+  {
+    id: 'p-demo-6',
+    categoryId: 'cat-4',
+    title: '【组队】寻找稳定的塔科夫团队 — 长期固定四人小队招募',
+    content: '在找稳定的塔科夫四人小队，要求：18+，有麦克风，会说普通话，每周至少能打3-4次，不要求大佬但要稳，不要一遇到危险就单跑的那种。我自己是2000小时老玩家，专精侦察和补给……',
+    excerpt: '寻找稳定的塔科夫四人小队，长期固定组队。要求有麦、稳定、每周3-4次。本人2000小时老玩家，专精侦察。',
+    game: '逃离塔科夫',
+    coverImage: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800&q=80',
+    tag: '组队',
+    authorId: 'u-开黑小能手',
+    createdAtISO: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
+    stats: { views: 3200, likes: 89, comments: 47 },
+  },
+  {
+    id: 'p-demo-7',
+    categoryId: 'cat-2',
+    title: '聊聊我心目中游戏史上最美的10个场景 — 截图党的年度精选',
+    content: 
