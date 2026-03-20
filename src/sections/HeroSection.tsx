@@ -72,8 +72,8 @@ export function HeroSection() {
       <motion.nav 
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled 
-            ? 'py-3 backdrop-blur-xl bg-white/80 border-b border-gray-200/50' 
-            : 'py-6 bg-transparent'
+            ? 'py-3 backdrop-blur-xl bg-white/70 border-b border-gray-200/40' 
+            : 'py-5 backdrop-blur-xl bg-white/35 border-b border-gray-200/20'
         }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -93,14 +93,14 @@ export function HeroSection() {
 
           {/* 搜索栏 */}
           <div className={`hidden md:flex items-center flex-1 max-w-md mx-8 transition-all duration-500 ${
-            isScrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            isScrolled ? 'opacity-100' : 'opacity-85'
           }`}>
             <div className="relative w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="搜索游戏、帖子、玩家..."
-                className="w-full pl-11 pr-4 py-2.5 rounded-full bg-gray-100/80 border-0 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/10 transition-all"
+                className="w-full pl-11 pr-4 py-2.5 rounded-full bg-white/55 border border-gray-200/60 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/10 transition-all"
               />
             </div>
           </div>
@@ -122,7 +122,7 @@ export function HeroSection() {
               <Menu className="w-5 h-5" />
             </motion.button>
             <motion.button 
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-foreground text-white text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -177,7 +177,7 @@ export function HeroSection() {
                 className="flex-1 px-4 py-4 text-base bg-transparent border-0 focus:outline-none placeholder:text-gray-400"
               />
               <motion.button 
-                className="mr-2 px-6 py-2.5 rounded-xl bg-foreground text-white text-sm font-medium"
+                className="mr-2 px-6 py-2.5 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >

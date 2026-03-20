@@ -268,7 +268,7 @@ export function DailyPostsSection() {
                     {/* 标题行 */}
                     <div className="flex items-start gap-2 mb-2">
                       {post.isHot && (
-                        <span className="flex-shrink-0 px-2 py-0.5 rounded bg-red-50 text-red-500 text-xs font-medium">
+                        <span className="flex-shrink-0 px-2 py-0.5 rounded bg-foreground/5 text-foreground/70 border border-foreground/10 text-xs font-medium">
                           热
                         </span>
                       )}
@@ -289,7 +289,7 @@ export function DailyPostsSection() {
                         <img
                           src={post.author.avatar}
                           alt={post.author.name}
-                          className="w-6 h-6 rounded-full bg-gray-100"
+                          className="w-6 h-6 rounded-full bg-gray-100 img-grayscale"
                         />
                         <span className="text-sm text-gray-600">{post.author.name}</span>
                         <span className="text-xs text-gray-400">Lv.{post.author.level}</span>

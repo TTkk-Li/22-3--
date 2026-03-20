@@ -30,7 +30,7 @@ const categories: Category[] = [
     name: '热门游戏',
     description: '当下最火爆的游戏讨论',
     icon: Gamepad2,
-    color: 'from-amber-500/20 to-orange-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 12580
   },
   {
@@ -38,7 +38,7 @@ const categories: Category[] = [
     name: '游戏杂谈',
     description: '畅所欲言的游戏话题',
     icon: MessageSquare,
-    color: 'from-blue-500/20 to-cyan-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 8932
   },
   {
@@ -46,7 +46,7 @@ const categories: Category[] = [
     name: '竞技排行',
     description: '实力比拼排行榜',
     icon: Trophy,
-    color: 'from-yellow-500/20 to-amber-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 5621
   },
   {
@@ -54,7 +54,7 @@ const categories: Category[] = [
     name: '玩家社区',
     description: '寻找志同道合的伙伴',
     icon: Users,
-    color: 'from-green-500/20 to-emerald-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 10234
   },
   {
@@ -62,7 +62,7 @@ const categories: Category[] = [
     name: '新游推荐',
     description: '发现下一个好游戏',
     icon: Sparkles,
-    color: 'from-purple-500/20 to-pink-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 3456
   },
   {
@@ -70,7 +70,7 @@ const categories: Category[] = [
     name: 'PC游戏',
     description: '端游玩家聚集地',
     icon: Monitor,
-    color: 'from-gray-500/20 to-slate-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 7890
   },
   {
@@ -78,7 +78,7 @@ const categories: Category[] = [
     name: '手游专区',
     description: '移动端游戏讨论',
     icon: Smartphone,
-    color: 'from-rose-500/20 to-red-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 15678
   },
   {
@@ -86,7 +86,7 @@ const categories: Category[] = [
     name: '硬件外设',
     description: '游戏装备交流',
     icon: Cpu,
-    color: 'from-indigo-500/20 to-violet-500/20',
+    color: 'from-gray-200/70 to-gray-100/20',
     postCount: 4321
   }
 ];
@@ -199,7 +199,7 @@ export function CategorySection() {
                   
                   {/* 帖子数 */}
                   <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
                     <span>{category.postCount.toLocaleString()} 帖子</span>
                   </div>
                 </div>

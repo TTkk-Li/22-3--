@@ -231,7 +231,7 @@ export function FeaturedPostsSection() {
               delay: index * 0.1,
               ease: [0.16, 1, 0.3, 1]
             }}
-            whileHover={{ y: -8 }}
+            whileHover={{ y: -8, scale: 1.02 }}
           >
             {/* 图片区域 */}
             <div className="relative h-52 overflow-hidden img-hover-zoom">
@@ -269,7 +269,7 @@ export function FeaturedPostsSection() {
                   <img
                     src={post.author.avatar}
                     alt={post.author.name}
-                    className="w-7 h-7 rounded-full bg-gray-100"
+                    className="w-7 h-7 rounded-full bg-gray-100 img-grayscale"
                   />
                   <span className="text-sm text-gray-600">{post.author.name}</span>
                 </div>
