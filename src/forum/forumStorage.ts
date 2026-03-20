@@ -2,7 +2,7 @@ import type { ForumComment, ForumLike, ForumNotification, ForumPost, ForumReply,
 import { initialPosts, initialUsers } from './mockData';
 
 const STORAGE_KEY = 'gamehub_forum_v1';
-const DATA_VERSION = 3; // 当结构/规则变化时，自动清空并重置演示数据
+const DATA_VERSION = 4; // 当结构/规则变化时，自动清空并重置数据
 
 export type ForumPersistedState = {
   dataVersion: number;

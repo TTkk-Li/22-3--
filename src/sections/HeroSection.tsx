@@ -6,7 +6,7 @@ import { useForum } from '../forum/ForumProvider';
 
 const TICKER = ['艾尔登法环','黑神话：悟空','原神','崩坏：星穹铁道','赛博朋克2077','塞尔达传说','王者荣耀','逃离塔科夫','Valorant','明日方舟','绝区零','Elden Ring DLC'];
 const TAGS = ['原神','王者荣耀','黑神话：悟空','崩铁','塔科夫','明日方舟'];
-const CHARS = 'NEXUS'.split('');
+const CHARS = 'GameCommunity'.split('');
 
 export function HeroSection({ onRequestLogin, onRequestCreatePost, onRequestLogout, onOpenUserCenter }: {
   onRequestLogin: () => void; onRequestCreatePost: () => void;
@@ -68,7 +68,7 @@ export function HeroSection({ onRequestLogin, onRequestCreatePost, onRequestLogo
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--c-ink)' }}>
               <span className="text-[var(--c-bg)] text-xs font-bold tracking-wider">NX</span>
             </div>
-            <span className="font-semibold text-base tracking-tight">NEXUS</span>
+            <span className="font-semibold text-base tracking-tight">GameCommunity</span>
           </motion.div>
 
           <div className={`hidden md:flex flex-1 max-w-xs relative transition-all duration-300 ${focus ? 'max-w-sm' : ''}`}>
