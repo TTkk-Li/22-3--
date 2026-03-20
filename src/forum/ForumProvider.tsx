@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import type { ForumComment, ForumPost, ForumReply, ForumUser } from './types';
+import type { ForumComment, ForumNotification, ForumPost, ForumReply, ForumUser } from './types';
 import {
   addReplyToComment,
   formatTimeAgo,
@@ -9,38 +9,39 @@ import {
   type ForumPersistedState,
 } from './forumStorage';
 
-      login: (username: string, password: string) => { ok: boolean; error?: string };
-      register: (username: string, password: string) => { ok: boolean; error?: string };
-      logout: () => void;
-      createPost: (input: {
-        categoryId: string;
-        title: string;
-        game: string;
-        content: string;
-        coverImage?: string;
-        tag?: string;
-        audioDataUrl?: string;
-        audioFileName?: string;
-      }) => { ok: boolean; error?: string; post?: ForumPost };
-      addComment: (postId: string, content: string) => { ok: boolean; error?: string };
-      addReply: (
-        postId: string,
-        commentId: string,
-        content: string
-      ) => { ok: boolean; error?: string };
-      toggleLike: (postId: string) => { ok: boolean; error?: string };
-      deletePost: (postId: string) => { ok: boolean; error?: string };
-      markNotificationsRead: (ids: string[]) => void;
-      clearReadNotifications: () => void;
-    };
+type ForumActions = {
+  login: (username: string, password: string) => { ok: boolean; error?: string };
+  register: (username: string, password: string) => { ok: boolean; error?: string };
+  logout: () => void;
+  createPost: (input: {
+    categoryId: string;
+    title: string;
+    game: string;
+    content: string;
+    coverImage?: string;
+    tag?: string;
+    audioDataUrl?: string;
+    audioFileName?: string;
+  }) => { ok: boolean; error?: string; post?: ForumPost };
+  addComment: (postId: string, content: string) => { ok: boolean; error?: string };
+  addReply: (
+    postId: string,
+    commentId: string,
+    content: string
+  ) => { ok: boolean; error?: string };
+  toggleLike: (postId: string) => { ok: boolean; error?: string };
+  deletePost: (postId: string) => { ok: boolean; error?: string };
+  markNotificationsRead: (ids: string[]) => void;
+  clearReadNotifications: () => void;
+};
 
-    type ForumContextValue = ForumPersistedState & {
-      actions: ForumActions;
-      formatTimeAgo: (iso: string) => string;
-      getUserById: (id: string) => ForumUser | undefined;
-      getPostById: (id: string) => ForumPost | undefined;
-      getCommentsByPostId: (postId: string) => ForumComment[];
-    };
+type ForumContextValue = ForumPersistedState & {
+  actions: ForumActions;
+  formatTimeAgo: (iso: string) => string;
+  getUserById: (id: string) => ForumUser | undefined;
+  getPostById: (id: string) => ForumPost | undefined;
+  getCommentsByPostId: (postId: string) => ForumComment[];
+};
 
 const ForumContext = createContext<ForumContextValue | null>(null);
 
@@ -70,7 +71,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                 id: nextId('n'),
                 toUserId: user.id,
                 fromUserId: undefined,
-                type: 'system' as const,
+                type: 'system',
                 postId: undefined,
                 commentId: undefined,
                 content: '欢迎回到 GameHub Forum！',
@@ -166,7 +167,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                   id: nextId('n'),
                   toUserId: post.authorId,
                   fromUserId: authorId,
-                  type: 'comment' as const,
+                  type: 'comment',
                   postId: post.id,
                   content: `你的帖子《${post.title}》收到了一条新评论`,
                   createdAtISO: new Date().toISOString(),
@@ -207,7 +208,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                   id: nextId('n'),
                   toUserId: target.authorId,
                   fromUserId: authorId,
-                  type: 'reply' as const,
+                  type: 'reply',
                   postId,
                   commentId,
                   content: `你收到对《${post.title}》评论的回复`,
@@ -254,7 +255,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                 id: nextId('n'),
                 toUserId: post.authorId,
                 fromUserId: userId,
-                type: 'like' as const,
+                type: 'like',
                 postId,
                 content: `你的帖子《${post.title}》被点赞了`,
                 createdAtISO: new Date().toISOString(),
