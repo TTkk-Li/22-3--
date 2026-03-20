@@ -49,13 +49,13 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    cursor: none;
+    cursor: auto;
     overflow-x: hidden;
   }
   
-  /* 隐藏默认光标 */
+  /* 恢复系统默认光标（去除自定义光标的 cursor none） */
   a, button, [role="button"], input, textarea, select {
-    cursor: none;
+    cursor: auto;
   }
 }
 

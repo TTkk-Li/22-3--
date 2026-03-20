@@ -1,20 +1,32 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Lenis from '@studio-freight/lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { CustomCursor } from './components/custom-cursor/CustomCursor';
 import { HeroSection } from './sections/HeroSection';
 import { CategorySection } from './sections/CategorySection';
 import { FeaturedPostsSection } from './sections/FeaturedPostsSection';
 import { DailyPostsSection } from './sections/DailyPostsSection';
 import { FooterSection } from './sections/FooterSection';
+import { ForumProvider, useForum } from './forum/ForumProvider';
+import { AuthDialog } from './forum/AuthDialog';
+import { CreatePostDialog } from './forum/CreatePostDialog';
+import { PostDetailDialog } from './forum/PostDetailDialog';
+import { CategoryBoard } from './forum/CategoryBoard';
 
 import './App.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function App() {
+function AppInner() {
+  const { currentUserId, actions } = useForum();
+
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [postDialogId, setPostDialogId] = useState<string | null>(null);
+
+  const [authOpen, setAuthOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+
   useEffect(() => {
     // 初始化 Lenis 平滑滚动
     const lenis = new Lenis({
@@ -42,30 +54,84 @@ function App() {
     };
   }, []);
 
+  const handleRequestCreatePost = () => {
+    if (!currentUserId) {
+      setAuthOpen(true);
+      return;
+    }
+    setCreateOpen(true);
+  };
+
+  const handleRequestLogout = () => {
+    actions.logout();
+    setCreateOpen(false);
+    setPostDialogId(null);
+    setActiveCategoryId(null);
+  };
+
+  const isCategoryMode = Boolean(activeCategoryId);
+
+  const onOpenPost = (postId: string) => setPostDialogId(postId);
+
   return (
     <div className="relative min-h-screen bg-[#F9F8F7]">
-      {/* 自定义鼠标指针 */}
-      <CustomCursor />
-      
       {/* 主内容 */}
       <main className="relative">
         {/* Hero 区域 */}
-        <HeroSection />
-        
-        {/* 板块分类 */}
-        <CategorySection />
-        
-        {/* 精选帖子 */}
-        <FeaturedPostsSection />
-        
-        {/* 每日帖子 */}
-        <DailyPostsSection />
+        <HeroSection
+          onRequestLogin={() => setAuthOpen(true)}
+          onRequestCreatePost={handleRequestCreatePost}
+          onRequestLogout={handleRequestLogout}
+        />
+
+        {!isCategoryMode ? (
+          <>
+            {/* 板块分类 */}
+            <CategorySection onSelectCategory={(id) => setActiveCategoryId(id)} />
+
+            {/* 精选帖子 */}
+            <FeaturedPostsSection onOpenPost={onOpenPost} />
+
+            {/* 每日帖子 */}
+            <DailyPostsSection onOpenPost={onOpenPost} />
+          </>
+        ) : (
+          <CategoryBoard
+            categoryId={activeCategoryId!}
+            onBack={() => setActiveCategoryId(null)}
+            onOpenPost={onOpenPost}
+            onRequestLogin={() => setAuthOpen(true)}
+            onRequestCreatePost={handleRequestCreatePost}
+          />
+        )}
         
         {/* 页脚 */}
         <FooterSection />
       </main>
+
+      {/* 登录/注册 */}
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+
+      {/* 发表帖子 */}
+      <CreatePostDialog open={createOpen} onOpenChange={setCreateOpen} />
+
+      {/* 帖子详情（评论/回复） */}
+      <PostDetailDialog
+        open={Boolean(postDialogId)}
+        onOpenChange={(v) => {
+          if (!v) setPostDialogId(null);
+        }}
+        postId={postDialogId}
+        onRequestLogin={() => setAuthOpen(true)}
+      />
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ForumProvider>
+      <AppInner />
+    </ForumProvider>
+  );
+}

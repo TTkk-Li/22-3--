@@ -2,11 +2,21 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Search, Menu, Bell, User } from 'lucide-react';
 import gsap from 'gsap';
+import { useForum } from '../forum/ForumProvider';
 
-export function HeroSection() {
+export function HeroSection({
+  onRequestLogin,
+  onRequestCreatePost,
+  onRequestLogout,
+}: {
+  onRequestLogin: () => void;
+  onRequestCreatePost: () => void;
+  onRequestLogout: () => void;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { currentUserId } = useForum();
   
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -121,14 +131,40 @@ export function HeroSection() {
             >
               <Menu className="w-5 h-5" />
             </motion.button>
-            <motion.button 
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">登录</span>
-            </motion.button>
+            {currentUserId ? (
+              <motion.button
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onRequestCreatePost}
+              >
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">发表帖子</span>
+              </motion.button>
+            ) : (
+              <motion.button
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onRequestLogin}
+              >
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">登录</span>
+              </motion.button>
+            )}
+
+            {currentUserId ? (
+              <motion.button
+                className="p-2.5 rounded-full hover:bg-gray-100 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onRequestLogout}
+                aria-label="退出"
+                title="退出"
+              >
+                <span className="text-xs font-medium">退出</span>
+              </motion.button>
+            ) : null}
           </div>
         </div>
       </motion.nav>

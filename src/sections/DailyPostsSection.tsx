@@ -1,4 +1,5 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useMemo, useState } from 'react';
+import type { ElementType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageCircle, 
@@ -12,111 +13,16 @@ import {
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useForum } from '../forum/ForumProvider';
+import { formatTimeAgo } from '../forum/forumStorage';
 
 gsap.registerPlugin(ScrollTrigger);
 
 type SortType = 'hot' | 'new' | 'trending';
 
-interface DailyPost {
-  id: string;
-  title: string;
-  content: string;
-  author: {
-    name: string;
-    avatar: string;
-    level: number;
-  };
-  game: string;
-  coverImage?: string;
-  stats: {
-    views: number;
-    likes: number;
-    comments: number;
-  };
-  createdAt: string;
-  isHot?: boolean;
-}
-
-const dailyPosts: DailyPost[] = [
-  {
-    id: '1',
-    title: '终于通关了！分享一些心得体会',
-    content: '历经50个小时的奋战，终于打通了这款游戏。不得不说，结局真的让人感动。想和大家分享一些通关技巧和隐藏要素...',
-    author: { name: '游戏狂热者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=10', level: 42 },
-    game: '博德之门3',
-    coverImage: 'https://images.unsplash.com/photo-1519669556878-63bdad8a1a49?w=600&h=400&fit=crop',
-    stats: { views: 45600, likes: 3200, comments: 567 },
-    createdAt: '2小时前',
-    isHot: true
-  },
-  {
-    id: '2',
-    title: '这个新角色太强了，测评一下',
-    content: '刚抽到新角色，测试了一下午，伤害输出真的很离谱。配队思路和使用技巧都在下面了...',
-    author: { name: '抽卡达人', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=11', level: 38 },
-    game: '原神',
-    stats: { views: 28900, likes: 2100, comments: 423 },
-    createdAt: '4小时前'
-  },
-  {
-    id: '3',
-    title: '有人一起开黑吗？段位钻石',
-    content: '主玩打野和射手，想找几个队友一起上分。有语音，心态好，不甩锅...',
-    author: { name: '开黑小能手', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=12', level: 25 },
-    game: '王者荣耀',
-    stats: { views: 12300, likes: 890, comments: 234 },
-    createdAt: '5小时前'
-  },
-  {
-    id: '4',
-    title: '游戏截图分享，这个光影效果太美了',
-    content: '今天在游戏里发现了一个超好看的场景，赶紧截图保存。这画质真的绝了...',
-    author: { name: '风景党', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=13', level: 31 },
-    game: '荒野大镖客2',
-    coverImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=400&fit=crop',
-    stats: { views: 67800, likes: 8900, comments: 1234 },
-    createdAt: '6小时前',
-    isHot: true
-  },
-  {
-    id: '5',
-    title: '求助：这个boss怎么打？',
-    content: '卡在这个boss三天了，各种方法都试过了。有没有大佬指点一下打法？',
-    author: { name: '萌新求助', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=14', level: 12 },
-    game: '艾尔登法环',
-    stats: { views: 8900, likes: 456, comments: 189 },
-    createdAt: '8小时前'
-  },
-  {
-    id: '6',
-    title: '自制游戏mod分享，增加新功能',
-    content: '花了一个月时间做了这个mod，增加了一些实用的功能。欢迎大家下载试用...',
-    author: { name: 'Mod大神', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=15', level: 56 },
-    game: '上古卷轴5',
-    stats: { views: 34500, likes: 4500, comments: 678 },
-    createdAt: '12小时前'
-  },
-  {
-    id: '7',
-    title: '游戏音乐合集推荐，每一首都是经典',
-    content: '整理了一些个人最喜欢的游戏音乐，包括最终幻想、塞尔达、尼尔等系列...',
-    author: { name: '音乐爱好者', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=16', level: 28 },
-    game: '综合讨论',
-    stats: { views: 22300, likes: 3400, comments: 456 },
-    createdAt: '1天前'
-  },
-  {
-    id: '8',
-    title: '新游试玩报告：值得期待吗？',
-    content: '参加了这次测试，整体体验还不错。画面、玩法、剧情都有亮点，但也有一些需要改进的地方...',
-    author: { name: '评测君', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=17', level: 45 },
-    game: '绝区零',
-    coverImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&h=400&fit=crop',
-    stats: { views: 56700, likes: 4100, comments: 789 },
-    createdAt: '1天前',
-    isHot: true
-  }
-];
+type DailyPostsSectionProps = {
+  onOpenPost: (postId: string) => void;
+};
 
 function formatNumber(num: number): string {
   if (num >= 10000) {
@@ -128,10 +34,23 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
-export function DailyPostsSection() {
+export function DailyPostsSection({ onOpenPost }: DailyPostsSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const [sortBy, setSortBy] = useState<SortType>('hot');
-  const [posts, setPosts] = useState(dailyPosts);
+  const { posts: forumPosts, getUserById } = useForum();
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  const dailyPosts = useMemo(() => {
+    const base = forumPosts.filter((p) => p.id.startsWith('post-daily'));
+    if (sortBy === 'new') return base.sort((a, b) => (b.createdAtISO > a.createdAtISO ? 1 : -1));
+    if (sortBy === 'trending')
+      return base.sort(
+        (a, b) => b.stats.likes + b.stats.comments * 2 - (a.stats.likes + a.stats.comments * 2)
+      );
+    return base.sort((a, b) => b.stats.views - a.stats.views);
+  }, [forumPosts, sortBy]);
+
+  const visiblePosts = useMemo(() => dailyPosts.slice(0, visibleCount), [dailyPosts, visibleCount]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -178,14 +97,15 @@ export function DailyPostsSection() {
     };
   }, []);
 
+  useEffect(() => {
+    setVisibleCount(5);
+  }, [sortBy]);
+
   const handleSort = (type: SortType) => {
     setSortBy(type);
-    // 模拟排序
-    const sorted = [...posts].sort(() => Math.random() - 0.5);
-    setPosts(sorted);
   };
 
-  const sortOptions: { type: SortType; label: string; icon: React.ElementType }[] = [
+  const sortOptions: { type: SortType; label: string; icon: ElementType }[] = [
     { type: 'hot', label: '最热', icon: Flame },
     { type: 'new', label: '最新', icon: Clock },
     { type: 'trending', label: '趋势', icon: TrendingUp },
@@ -233,15 +153,18 @@ export function DailyPostsSection() {
         {/* 帖子列表 */}
         <div className="posts-list space-y-4">
           <AnimatePresence mode="wait">
-            {posts.map((post) => (
+            {visiblePosts.map((post) => (
               <motion.article
                 key={post.id}
-                className="post-item group bg-white rounded-2xl p-5 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50"
+                className="post-item group bg-white rounded-2xl p-5 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50 cursor-pointer"
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 whileHover={{ y: -4 }}
+                onClick={() => onOpenPost(post.id)}
+                role="button"
+                tabIndex={0}
               >
                 <div className="flex gap-4">
                   {/* 左侧：封面图或游戏标签 */}
@@ -267,11 +190,11 @@ export function DailyPostsSection() {
                   <div className="flex-1 min-w-0">
                     {/* 标题行 */}
                     <div className="flex items-start gap-2 mb-2">
-                      {post.isHot && (
+                      {post.tag ? (
                         <span className="flex-shrink-0 px-2 py-0.5 rounded bg-foreground/5 text-foreground/70 border border-foreground/10 text-xs font-medium">
                           热
                         </span>
-                      )}
+                      ) : null}
                       <h3 className="text-base md:text-lg font-semibold line-clamp-1 group-hover:text-foreground/80 transition-colors">
                         {post.title}
                       </h3>
@@ -287,14 +210,14 @@ export function DailyPostsSection() {
                       {/* 作者信息 */}
                       <div className="flex items-center gap-2">
                         <img
-                          src={post.author.avatar}
-                          alt={post.author.name}
+                          src={getUserById(post.authorId)?.avatarUrl ?? ''}
+                          alt={getUserById(post.authorId)?.username ?? ''}
                           className="w-6 h-6 rounded-full bg-gray-100 img-grayscale"
                         />
-                        <span className="text-sm text-gray-600">{post.author.name}</span>
-                        <span className="text-xs text-gray-400">Lv.{post.author.level}</span>
+                        <span className="text-sm text-gray-600">{getUserById(post.authorId)?.username ?? ''}</span>
+                        <span className="text-xs text-gray-400">Lv.{getUserById(post.authorId)?.level ?? 1}</span>
                         <span className="text-xs text-gray-300">·</span>
-                        <span className="text-xs text-gray-400">{post.createdAt}</span>
+                        <span className="text-xs text-gray-400">{formatTimeAgo(post.createdAtISO)}</span>
                       </div>
 
                       {/* 操作按钮 */}
@@ -344,6 +267,8 @@ export function DailyPostsSection() {
             className="pill-button"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => setVisibleCount((c) => Math.min(dailyPosts.length, c + 5))}
+            disabled={visibleCount >= dailyPosts.length}
           >
             <span>加载更多</span>
           </motion.button>

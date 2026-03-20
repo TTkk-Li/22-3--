@@ -1,3 +1,4 @@
+import type { ElementType } from 'react';
 import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -12,88 +13,30 @@ import {
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useForum } from '../forum/ForumProvider';
+import { categories as boardCategories } from '../forum/mockData';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ElementType;
-  color: string;
-  postCount: number;
-}
+const iconByCategoryId: Record<string, ElementType> = {
+  'cat-1': Gamepad2,
+  'cat-2': MessageSquare,
+  'cat-3': Trophy,
+  'cat-4': Users,
+  'cat-5': Sparkles,
+  'cat-6': Monitor,
+  'cat-7': Smartphone,
+  'cat-8': Cpu,
+};
 
-const categories: Category[] = [
-  {
-    id: '1',
-    name: '热门游戏',
-    description: '当下最火爆的游戏讨论',
-    icon: Gamepad2,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 12580
-  },
-  {
-    id: '2',
-    name: '游戏杂谈',
-    description: '畅所欲言的游戏话题',
-    icon: MessageSquare,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 8932
-  },
-  {
-    id: '3',
-    name: '竞技排行',
-    description: '实力比拼排行榜',
-    icon: Trophy,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 5621
-  },
-  {
-    id: '4',
-    name: '玩家社区',
-    description: '寻找志同道合的伙伴',
-    icon: Users,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 10234
-  },
-  {
-    id: '5',
-    name: '新游推荐',
-    description: '发现下一个好游戏',
-    icon: Sparkles,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 3456
-  },
-  {
-    id: '6',
-    name: 'PC游戏',
-    description: '端游玩家聚集地',
-    icon: Monitor,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 7890
-  },
-  {
-    id: '7',
-    name: '手游专区',
-    description: '移动端游戏讨论',
-    icon: Smartphone,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 15678
-  },
-  {
-    id: '8',
-    name: '硬件外设',
-    description: '游戏装备交流',
-    icon: Cpu,
-    color: 'from-gray-200/70 to-gray-100/20',
-    postCount: 4321
-  }
-];
-
-export function CategorySection() {
+export function CategorySection({
+  onSelectCategory,
+}: {
+  onSelectCategory: (categoryId: string) => void;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const { posts } = useForum();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -166,21 +109,28 @@ export function CategorySection() {
         </div>
 
         {/* 分类卡片网格 */}
-        <div 
+        <div
           ref={cardsRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6"
         >
-          {categories.map((category) => {
-            const Icon = category.icon;
+          {boardCategories.map((category) => {
+            const Icon = iconByCategoryId[category.id] ?? Gamepad2;
+            const postCount = posts.filter((p) => p.categoryId === category.id).length;
             return (
               <motion.div
                 key={category.id}
                 className="category-card group relative p-6 rounded-2xl bg-white border border-gray-100 overflow-hidden cursor-pointer"
                 whileHover={{ y: -8, scale: 1.02 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                role="button"
+                tabIndex={0}
+                onClick={() => onSelectCategory(category.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') onSelectCategory(category.id);
+                }}
               >
                 {/* 背景渐变 */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-200/70 to-gray-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 {/* 内容 */}
                 <div className="relative z-10">
@@ -200,7 +150,7 @@ export function CategorySection() {
                   {/* 帖子数 */}
                   <div className="flex items-center gap-2 text-xs text-gray-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-foreground/20" />
-                    <span>{category.postCount.toLocaleString()} 帖子</span>
+                    <span>{postCount.toLocaleString()} 帖子</span>
                   </div>
                 </div>
 
