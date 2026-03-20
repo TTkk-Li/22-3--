@@ -1,73 +1,136 @@
-# React + TypeScript + Vite
+# GameHub Forum（游戏交流论坛）
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+这是一个极简优雅风格的游戏交流论坛前端示例站，使用 `React + TypeScript + Vite` 构建，结合 `Tailwind CSS` 做版式与配色，并使用 `Framer Motion + GSAP + Lenis` 实现滚动与进入动画。
 
-Currently, two official plugins are available:
+## 1. 设计风格目标
+- 极简中性色：芝麻黑 `#F9F8F7` + 灰阶 + 纯白，尽量避免彩色跳色，整体色相统一
+- 空间感：大体量 Hero 巨幕标题，顶部导航/搜索做半透明玻璃态
+- 鼠标交互：按钮胶囊形状，hover 时做平滑填充；图片 hover 做轻微缩放与位移
+- 动效：页面滚动触发“由下自上”的位移与淡入；精选横滑卡片悬停轻微放大
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+> 说明：你要求“自定义光标会卡”，因此当前版本已去除自定义光标，恢复系统默认光标以保证流畅度。
 
-## React Compiler
+## 2. 技术栈
+- React（含状态与弹窗交互）
+- TypeScript
+- Vite（打包/开发服务器）
+- Tailwind CSS（样式与组件风格）
+- Framer Motion（进入/悬停动画、弹窗动效）
+- GSAP + ScrollTrigger（滚动进入动画联动）
+- Lenis（全局阻尼感平滑滚动）
+- Radix UI（Dialog 等基础组件）
+- lucide-react（图标）
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 3. 网站内容与可用模块（当前已实现）
 
-## Expanding the ESLint configuration
+### 3.1 Hero 区（首页顶部）
+- 巨幕标题“GameHub Forum”
+- 顶部半透明导航栏与搜索输入框
+- 右侧登录/发表帖子/退出按钮
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 3.2 板块分类（可点击进入）
+- 每个板块卡片可点击进入该板块列表页（使用 Dialog 弹窗内实现的板块面板）
+- 支持“返回首页”
+- 登录后可在该板块内选择“发表帖子”
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 3.3 精选帖子（横向滚动）
+- 精选区为横向滑动卡片流
+- 卡片悬停轻微放大
+- 点击卡片打开帖子详情弹窗
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+> 目前演示逻辑：精选区展示的是预置数据（`post-featured-*`）。你通过“发表帖子”发布的新帖子会进入对应“板块列表”，但默认不会自动进入“精选/每日”展示（后续可按你的规则扩展）。
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 3.4 每日帖子（列表 + 排序）
+- 支持排序：最热 / 最新 / 趋势
+- 每条帖子点击打开详情弹窗
+- “加载更多”用于演示分页效果
+
+> 目前演示逻辑同精选区：每日区展示预置数据（`post-daily-*`）。新发帖默认进入“对应板块列表”。
+
+### 3.5 页脚
+- 品牌说明、订阅表单（演示 UI）
+- 若干产品/支持/关于链接（演示 UI）
+
+## 4. 论坛核心功能（本地存储演示版）
+为了让“装饰性功能变为可用”，当前实现了本地交互版（不依赖后端 API）：
+- 用户：登录 / 注册 / 退出
+- 帖子：发表帖子
+- 互动：帖子评论 / 对评论回复（支持多层回复结构：回复仍挂在评论下）
+
+### 4.1 数据持久化
+- 使用浏览器 `localStorage` 保存论坛数据
+- key：`gamehub_forum_v1`
+
+### 4.2 登录 / 注册
+- 已内置一批演示用户
+- 演示密码：`123456`
+- 注册会把新用户写入 `localStorage`，并立即处于已登录状态
+
+### 4.3 发表帖子
+未登录会引导你先登录。
+发布表单包含：
+- 板块
+- 标题
+- 游戏/话题
+- 内容
+- 封面图（可选，填写图片 URL）
+
+发布后：
+- 该帖子会出现在对应板块列表中，可继续评论/回复。
+
+### 4.4 帖子评论与回复
+在帖子详情弹窗中：
+- 评论区支持发表评论
+- 每条评论支持“回复”，会在评论下方渲染回复内容
+
+> 顶部“分享/更多”等操作按钮当前主要用于 UI 展示；如果你希望它们也接入可用逻辑（例如点赞、收藏、分享链接等），告诉我你要的交互规则即可，我会继续补齐。
+
+## 5. 宝塔（BT）部署：终端方式（Nginx 托管 dist）
+部署思路：`npm run build` 生成 `dist/`，然后用 Nginx 直接托管静态文件，并开启 SPA 回退（刷新路由不 404）。
+
+### 5.1 构建 dist
+在服务器项目目录执行：
+```bash
+cd /www/wwwroot/你的站点目录
+npm ci
+npm run build
+ls -la dist
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 5.2 Nginx 配置（SPA 回退）
+在你的站点 Nginx server 配置中确保：
+- `root` 指向 `.../dist`
+- `location /` 使用 `try_files` 回退到 `index.html`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+示例（按你的目录替换）：
+```nginx
+server {
+  listen 80;
+  server_name 47.96.76.147;
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+  root /www/wwwroot/47.96.76.147/dist;
+  index index.html;
+
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
 ```
+
+修改完成后重载 Nginx：
+```bash
+nginx -t && nginx -s reload
+```
+
+## 6. 本地开发
+```bash
+npm ci
+npm run dev
+```
+
+## 7. 更新记录（README 会随功能变更而同步）
+- 2026-03-20：
+  - 去除自定义光标以保证流畅度
+  - 接入本地论坛可用交互：登录/注册、发表帖子、帖子详情、评论、对评论回复
+  - 分类/精选/每日支持点击打开详情与互动
+

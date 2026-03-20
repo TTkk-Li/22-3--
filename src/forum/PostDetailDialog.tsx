@@ -114,7 +114,6 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
                       key={c.id}
                       comment={c}
                       getUserById={getUserById}
-                      postId={post.id}
                       currentUserId={currentUserId}
                       replyTo={replyTo}
                       setReplyTo={setReplyTo}
@@ -147,7 +146,6 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
 function CommentBlock({
   comment,
   getUserById,
-  postId,
   currentUserId,
   replyTo,
   setReplyTo,
@@ -158,7 +156,6 @@ function CommentBlock({
 }: {
   comment: ForumComment;
   getUserById: (id: string) => any;
-  postId: string;
   currentUserId: string | null;
   replyTo: string | null;
   setReplyTo: (id: string | null) => void;
