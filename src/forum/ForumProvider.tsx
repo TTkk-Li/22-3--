@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import type { ForumComment, ForumPost, ForumReply, ForumUser } from './types';
+import type { ForumComment, ForumNotification, ForumPost, ForumReply, ForumUser } from './types';
 import {
   addReplyToComment,
   formatTimeAgo,
