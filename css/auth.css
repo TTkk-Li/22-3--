@@ -1,0 +1,83 @@
+/* 登录注册页面样式 */
+.auth-container {
+  max-width: 500px;
+  margin: 50px auto;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 30px;
+}
+
+.auth-title {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.auth-form .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-form .form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.auth-form .form-control {
+  width: 100%;
+  height: 45px;
+  padding: 0 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.auth-form .form-control:focus {
+  border-color: #3498db;
+}
+
+.auth-btn {
+  width: 100%;
+  height: 45px;
+  line-height: 45px;
+  text-align: center;
+  background-color: #3498db;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-btn:hover {
+  background-color: #2980b9;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.auth-switch a {
+  color: #3498db;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+.error-tip {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
+.success-tip {
+  color: #2ecc71;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}

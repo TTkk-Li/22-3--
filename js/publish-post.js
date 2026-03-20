@@ -1,5 +1,13 @@
 // 发帖页面脚本
 document.addEventListener('DOMContentLoaded', function() {
+  // 检查登录状态
+  if (!checkLogin()) return;
+  
+  const currentUser = forumData.getCurrentUser();
+  
+  // 初始化版块下拉框
+  initCategorySelect();
+  
   const fileInput = document.getElementById('file-input');
   const uploadArea = document.getElementById('upload-area');
   const previewList = document.getElementById('preview-list');
@@ -43,6 +51,21 @@ document.addEventListener('DOMContentLoaded', function() {
       handleFiles(files);
     }
   });
+
+  /**
+   * 初始化版块下拉框
+   */
+  function initCategorySelect() {
+    const categories = forumData.getCategories();
+    postCategory.innerHTML = '<option value="">请选择版块</option>';
+    
+    categories.forEach(category => {
+      const option = document.createElement('option');
+      option.value = category.id;
+      option.textContent = category.name;
+      postCategory.appendChild(option);
+    });
+  }
 
   /**
    * 处理上传的文件
@@ -144,21 +167,32 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // 模拟发布成功
+    // 获取版块名称
+    const categories = forumData.getCategories();
+    const category = categories.find(c => c.id === parseInt(postCategory.value));
+    
+    // 构建帖子数据
+    const postData = {
+      title: postTitle.value.trim(),
+      categoryId: postCategory.value,
+      categoryName: category.name,
+      content: postContent.value.trim(),
+      userId: currentUser.id,
+      username: currentUser.username,
+      avatar: currentUser.avatar,
+      files: uploadedFiles.map(file => ({
+        name: file.file.name,
+        type: file.type,
+        size: file.file.size
+      }))
+    };
+    
+    // 添加帖子到数据存储
+    forumData.addPost(postData);
+    
+    // 提示成功
     alert('帖子发布成功！');
     
-    // 实际项目中这里会发送AJAX请求到后端
-    // 可以在这里构建FormData对象，包含所有表单数据和文件
-    const formData = new FormData();
-    formData.append('title', postTitle.value.trim());
-    formData.append('category', postCategory.value);
-    formData.append('content', postContent.value.trim());
-    
-    // 添加文件
-    uploadedFiles.forEach(item => {
-      formData.append('files[]', item.file);
-    });
-
     // 跳转到首页
     setTimeout(() => {
       window.location.href = 'index.html';
