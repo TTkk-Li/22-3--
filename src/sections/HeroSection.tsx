@@ -6,7 +6,7 @@ import { useForum } from '../forum/ForumProvider';
 
 const TICKER = ['艾尔登法环','黑神话：悟空','原神','崩坏：星穹铁道','赛博朋克2077','塞尔达传说','王者荣耀','逃离塔科夫','Valorant','明日方舟','绝区零','Elden Ring DLC'];
 const TAGS = ['原神','王者荣耀','黑神话：悟空','崩铁','塔科夫','明日方舟'];
-const CHARS = 'GameCommunity'.split('');
+const CHARS = 'game-Veyra'.split('');
 
 export function HeroSection({ onRequestLogin, onRequestCreatePost, onRequestLogout, onOpenUserCenter }: {
   onRequestLogin: () => void; onRequestCreatePost: () => void;
