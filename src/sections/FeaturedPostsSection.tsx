@@ -28,10 +28,10 @@ export function FeaturedPostsSection({ onOpenPost }: FeaturedPostsSectionProps) 
   const [canScrollRight, setCanScrollRight] = useState(true);
   const { posts, getUserById } = useForum();
 
-  // 从本地论坛状态中取精选：以 id 前缀区分
+  // 精选：按互动热度（点赞/评论）排序取前若干
   const featuredPosts = posts
-    .filter((p) => p.id.startsWith('post-featured'))
-    .sort((a, b) => (b.stats.views - a.stats.views) || (b.createdAtISO > a.createdAtISO ? 1 : -1));
+    .slice()
+    .sort((a, b) => (b.stats.likes + b.stats.comments * 2) - (a.stats.likes + a.stats.comments * 2));
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -149,7 +149,11 @@ export function FeaturedPostsSection({ onOpenPost }: FeaturedPostsSectionProps) 
         {/* 左侧留白 */}
         <div className="flex-shrink-0 w-[calc((100vw-1280px)/2)] hidden xl:block" />
         
-        {featuredPosts.map((post, index) => (
+        {featuredPosts.length === 0 ? (
+          <div className="flex items-center h-52 px-2 text-sm text-muted-foreground">
+            暂无精选帖子，先去各板块发表内容吧。
+          </div>
+        ) : featuredPosts.map((post, index) => (
           <motion.article
             key={post.id}
             className="featured-post-card group flex-shrink-0 w-[340px] md:w-[400px] bg-white rounded-2xl overflow-hidden border border-gray-100 scroll-snap-align-start cursor-pointer"

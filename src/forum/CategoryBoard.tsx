@@ -18,6 +18,7 @@ export function CategoryBoard({
   onRequestCreatePost,
 }: Props) {
   const { posts, getUserById, currentUserId } = useForum();
+  const isMusicBoard = categoryId === 'cat-3';
 
   const category = useMemo(
     () => categories.find((c) => c.id === categoryId),
@@ -71,7 +72,14 @@ export function CategoryBoard({
                   onClick={() => onOpenPost(p.id)}
                 >
                   <div className="flex items-start gap-4">
-                    {p.coverImage ? (
+                    {isMusicBoard && p.audioDataUrl ? (
+                      <div className="w-28 h-20 rounded-xl overflow-hidden bg-muted/10 border border-border/60 flex-shrink-0 p-2 flex flex-col gap-1">
+                        <div className="text-[11px] text-muted-foreground truncate" title={p.audioFileName ?? ''}>
+                          {p.audioFileName ?? '音频'}
+                        </div>
+                        <audio controls src={p.audioDataUrl} className="w-full" />
+                      </div>
+                    ) : p.coverImage ? (
                       <div className="w-28 h-20 rounded-xl overflow-hidden img-hover-zoom bg-gray-100 flex-shrink-0">
                         <img src={p.coverImage} alt={p.title} className="w-full h-full object-cover" />
                       </div>

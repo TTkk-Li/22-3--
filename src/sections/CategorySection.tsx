@@ -4,12 +4,12 @@ import { motion } from 'framer-motion';
 import { 
   Gamepad2, 
   MessageSquare, 
-  Trophy, 
   Users, 
   Sparkles, 
   Monitor,
   Smartphone,
-  Cpu
+  Cpu,
+  Music2
 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -21,7 +21,7 @@ gsap.registerPlugin(ScrollTrigger);
 const iconByCategoryId: Record<string, ElementType> = {
   'cat-1': Gamepad2,
   'cat-2': MessageSquare,
-  'cat-3': Trophy,
+  'cat-3': Music2,
   'cat-4': Users,
   'cat-5': Sparkles,
   'cat-6': Monitor,

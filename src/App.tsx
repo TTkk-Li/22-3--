@@ -13,6 +13,7 @@ import { AuthDialog } from './forum/AuthDialog';
 import { CreatePostDialog } from './forum/CreatePostDialog';
 import { PostDetailDialog } from './forum/PostDetailDialog';
 import { CategoryBoard } from './forum/CategoryBoard';
+import { UserCenterDialog } from './forum/UserCenterDialog';
 
 import './App.css';
 
@@ -23,6 +24,7 @@ function AppInner() {
 
   const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [postDialogId, setPostDialogId] = useState<string | null>(null);
+  const [userCenterOpen, setUserCenterOpen] = useState(false);
 
   const [authOpen, setAuthOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -82,6 +84,7 @@ function AppInner() {
           onRequestLogin={() => setAuthOpen(true)}
           onRequestCreatePost={handleRequestCreatePost}
           onRequestLogout={handleRequestLogout}
+          onOpenUserCenter={() => setUserCenterOpen(true)}
         />
 
         {!isCategoryMode ? (
@@ -122,6 +125,13 @@ function AppInner() {
           if (!v) setPostDialogId(null);
         }}
         postId={postDialogId}
+        onRequestLogin={() => setAuthOpen(true)}
+      />
+
+      {/* 用户主页/消息 */}
+      <UserCenterDialog
+        open={userCenterOpen}
+        onOpenChange={setUserCenterOpen}
         onRequestLogin={() => setAuthOpen(true)}
       />
     </div>

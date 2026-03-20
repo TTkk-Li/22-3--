@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Search, Menu, Bell, User } from 'lucide-react';
 import gsap from 'gsap';
@@ -8,15 +8,22 @@ export function HeroSection({
   onRequestLogin,
   onRequestCreatePost,
   onRequestLogout,
+  onOpenUserCenter,
 }: {
   onRequestLogin: () => void;
   onRequestCreatePost: () => void;
   onRequestLogout: () => void;
+  onOpenUserCenter: () => void;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { currentUserId } = useForum();
+  const { currentUserId, notifications } = useForum();
+
+  const unreadCount = useMemo(() => {
+    if (!currentUserId) return 0;
+    return notifications.filter((n) => n.toUserId === currentUserId && !n.isRead).length;
+  }, [currentUserId, notifications]);
   
   const { scrollY } = useScroll();
   const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -121,8 +128,17 @@ export function HeroSection({
               className="p-2.5 rounded-full hover:bg-gray-100 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                if (!currentUserId) return;
+                onOpenUserCenter();
+              }}
             >
-              <Bell className="w-5 h-5" />
+              <span className="relative inline-flex">
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 ? (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-foreground" />
+                ) : null}
+              </span>
             </motion.button>
             <motion.button 
               className="p-2.5 rounded-full hover:bg-gray-100 transition-colors"

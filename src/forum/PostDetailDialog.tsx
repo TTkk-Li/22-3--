@@ -4,6 +4,7 @@ import { useForum } from './ForumProvider';
 import type { ForumComment } from './types';
 import { formatTimeAgo } from './forumStorage';
 import { categories } from './mockData';
+import { Heart, Trash2 } from 'lucide-react';
 
 type Props = {
   open: boolean;
@@ -13,13 +14,14 @@ type Props = {
 };
 
 export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }: Props) {
-  const { currentUserId, getPostById, getUserById, getCommentsByPostId, actions } = useForum();
+  const { currentUserId, getPostById, getUserById, getCommentsByPostId, actions, likes } = useForum();
   const post = useMemo(() => (postId ? getPostById(postId) : undefined), [postId, getPostById]);
 
   const [commentText, setCommentText] = useState('');
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const categoryName = useMemo(() => {
     if (!post) return '';
@@ -32,6 +34,11 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
   }, [post, getCommentsByPostId]);
 
   const author = post ? getUserById(post.authorId) : undefined;
+
+  const isLiked = useMemo(() => {
+    if (!post || !currentUserId) return false;
+    return likes.some((l) => l.postId === post.id && l.userId === currentUserId);
+  }, [likes, post, currentUserId]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -53,9 +60,20 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
           <div className="py-6 text-sm text-muted-foreground">未找到帖子</div>
         ) : (
           <div className="space-y-5 pt-2">
+            {actionError ? <div className="text-sm text-destructive">{actionError}</div> : null}
+
             {post.coverImage ? (
               <div className="rounded-2xl overflow-hidden border border-border">
                 <img src={post.coverImage} alt={post.title} className="w-full h-56 object-cover" />
+              </div>
+            ) : null}
+
+            {post.audioDataUrl ? (
+              <div className="rounded-2xl border border-border/70 bg-muted/10 p-4">
+                <div className="text-xs text-muted-foreground mb-2">
+                  音频：{post.audioFileName ?? 'music'}
+                </div>
+                <audio controls src={post.audioDataUrl} className="w-full" />
               </div>
             ) : null}
 
@@ -68,8 +86,45 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
             </div>
 
             <div className="pt-2 border-t border-border/60">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 mb-4">
                 <h3 className="text-base font-semibold">评论区（{comments.length}）</h3>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    className="pill-button"
+                    style={{ borderRadius: 9999 }}
+                    onClick={() => {
+                      if (!currentUserId) return onRequestLogin();
+                      setActionError(null);
+                      const res = actions.toggleLike(post.id);
+                      if (!res.ok) setActionError(res.error ?? '点赞失败');
+                    }}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Heart className="w-4 h-4" fill={isLiked ? 'currentColor' : 'none'} />
+                      {post.stats.likes}
+                    </span>
+                  </button>
+
+                  {currentUserId && post.authorId === currentUserId ? (
+                    <button
+                      className="pill-button"
+                      style={{ borderRadius: 9999 }}
+                      onClick={() => {
+                        if (!window.confirm('确定删除该帖子吗？此操作会同时删除评论与回复。')) return;
+                        setActionError(null);
+                        const res = actions.deletePost(post.id);
+                        if (!res.ok) setActionError(res.error ?? '删除失败');
+                        else onOpenChange(false);
+                      }}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <Trash2 className="w-4 h-4" />
+                        删除
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
               </div>
 
               {!currentUserId ? (

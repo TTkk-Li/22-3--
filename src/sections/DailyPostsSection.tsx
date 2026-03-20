@@ -41,13 +41,15 @@ export function DailyPostsSection({ onOpenPost }: DailyPostsSectionProps) {
   const [visibleCount, setVisibleCount] = useState(5);
 
   const dailyPosts = useMemo(() => {
-    const base = forumPosts.filter((p) => p.id.startsWith('post-daily'));
-    if (sortBy === 'new') return base.sort((a, b) => (b.createdAtISO > a.createdAtISO ? 1 : -1));
+    const base = forumPosts;
+    if (sortBy === 'new')
+      return base.sort((a, b) => (b.createdAtISO > a.createdAtISO ? 1 : -1));
     if (sortBy === 'trending')
       return base.sort(
-        (a, b) => b.stats.likes + b.stats.comments * 2 - (a.stats.likes + a.stats.comments * 2)
+        (a, b) => b.stats.likes * 2 + b.stats.comments - (a.stats.likes * 2 + a.stats.comments)
       );
-    return base.sort((a, b) => b.stats.views - a.stats.views);
+    // hot：用点赞 + 评论权重模拟热度
+    return base.sort((a, b) => b.stats.likes + b.stats.comments * 2 - (a.stats.likes + a.stats.comments * 2));
   }, [forumPosts, sortBy]);
 
   const visiblePosts = useMemo(() => dailyPosts.slice(0, visibleCount), [dailyPosts, visibleCount]);
@@ -153,7 +155,12 @@ export function DailyPostsSection({ onOpenPost }: DailyPostsSectionProps) {
         {/* 帖子列表 */}
         <div className="posts-list space-y-4">
           <AnimatePresence mode="wait">
-            {visiblePosts.map((post) => (
+            {visiblePosts.length === 0 ? (
+              <div className="text-sm text-muted-foreground p-8 rounded-2xl border border-border/60 bg-white">
+                暂无帖子。你可以先选择任意板块发表内容。
+              </div>
+            ) : (
+              visiblePosts.map((post) => (
               <motion.article
                 key={post.id}
                 className="post-item group bg-white rounded-2xl p-5 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50 cursor-pointer"
@@ -257,7 +264,8 @@ export function DailyPostsSection({ onOpenPost }: DailyPostsSectionProps) {
                   </div>
                 </div>
               </motion.article>
-            ))}
+              ))
+            )}
           </AnimatePresence>
         </div>
 

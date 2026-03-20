@@ -21,6 +21,9 @@ export type ForumPost = {
   game: string;
   coverImage?: string;
   tag?: string;
+  // 音乐分享（仅音乐板块使用）：把音频作为 dataURL（demo）存储在本地
+  audioDataUrl?: string;
+  audioFileName?: string;
   authorId: string;
   createdAtISO: string;
   stats: {
@@ -45,5 +48,25 @@ export type ForumReply = {
   authorId: string;
   content: string;
   createdAtISO: string;
+};
+
+export type ForumLike = {
+  postId: string;
+  userId: string;
+  createdAtISO: string;
+};
+
+export type ForumNotificationType = 'comment' | 'reply' | 'like' | 'system';
+
+export type ForumNotification = {
+  id: string;
+  toUserId: string;
+  fromUserId?: string;
+  type: ForumNotificationType;
+  postId?: string;
+  commentId?: string;
+  content: string;
+  createdAtISO: string;
+  isRead: boolean;
 };
 

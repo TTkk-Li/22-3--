@@ -1,13 +1,17 @@
-import type { ForumComment, ForumPost, ForumReply, ForumUser } from './types';
+import type { ForumComment, ForumLike, ForumNotification, ForumPost, ForumReply, ForumUser } from './types';
 import { initialPosts, initialUsers } from './mockData';
 
 const STORAGE_KEY = 'gamehub_forum_v1';
+const DATA_VERSION = 3; // 当结构/规则变化时，自动清空并重置演示数据
 
 export type ForumPersistedState = {
+  dataVersion: number;
   users: ForumUser[];
   currentUserId: string | null;
   posts: ForumPost[];
   comments: ForumComment[];
+  likes: ForumLike[];
+  notifications: ForumNotification[];
 };
 
 function safeJsonParse<T>(text: string | null): T | null {
@@ -22,15 +26,39 @@ function safeJsonParse<T>(text: string | null): T | null {
 export function loadForumState(): ForumPersistedState {
   if (typeof window === 'undefined') {
     // SSR guard: use mock seed
-    return { users: initialUsers, currentUserId: null, posts: initialPosts, comments: [] };
+    return {
+      dataVersion: DATA_VERSION,
+      users: initialUsers,
+      currentUserId: null,
+      posts: initialPosts,
+      comments: [],
+      likes: [],
+      notifications: [],
+    };
   }
 
   const raw = window.localStorage.getItem(STORAGE_KEY);
   const parsed = safeJsonParse<ForumPersistedState>(raw);
-  if (parsed && parsed.users && parsed.posts) return parsed;
+  if (parsed && parsed.users && parsed.posts) {
+    if (parsed.dataVersion === DATA_VERSION) {
+      return {
+        ...parsed,
+        likes: parsed.likes ?? [],
+        notifications: parsed.notifications ?? [],
+      };
+    }
+  }
 
   // first run: seed
-  return { users: initialUsers, currentUserId: null, posts: initialPosts, comments: [] };
+  return {
+    dataVersion: DATA_VERSION,
+    users: initialUsers,
+    currentUserId: null,
+    posts: initialPosts,
+    comments: [],
+    likes: [],
+    notifications: [],
+  };
 }
 
 export function saveForumState(state: ForumPersistedState) {
