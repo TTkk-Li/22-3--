@@ -72,6 +72,8 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                 toUserId: user.id,
                 fromUserId: undefined,
                 type: 'system',
+                postId: undefined,
+                commentId: undefined,
                 content: '欢迎回到 GameHub Forum！',
                 createdAtISO: new Date().toISOString(),
                 isRead: false,
