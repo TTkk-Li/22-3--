@@ -101,4 +101,5 @@ export const featuredPosts: Post[] = [
     hot: true,
   },
   // 可在此处继续添加更多帖子
+];
       
