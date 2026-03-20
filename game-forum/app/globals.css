@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sora: 'Sora', sans-serif;
+  --font-playfair: 'Playfair Display', serif;
+  --font-jetbrains: 'JetBrains Mono', monospace;
+  --font-noto: 'Noto Sans SC', sans-serif;
+
+  --color-sesame: #F9F8F7;
+  --color-ink: #1A1A1A;
+  --color-ink-muted: #6B6B6B;
+  --color-surface-1: #F9F8F7;
+  --color-surface-2: #F2F1F0;
+  --color-accent-warm: #C8A882;
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+  background: #F9F8F7;
+}
+
+body {
+  font-family: var(--font-sora), var(--font-noto), sans-serif;
+  background-color: #F9F8F7;
+  color: #1A1A1A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F2F1F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #ADADAD;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6B6B6B;
+}
+
+/* Lenis smooth scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Horizontal scroll area */
+.scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Grain overlay */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Selection */
+::selection {
+  background: #1A1A1A;
+  color: #F9F8F7;
+}
+
+/* Pill button base */
+.btn-pill {
+  @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300;
+  border: 1px solid currentColor;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+.btn-pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #1A1A1A;
+  transform: translateY(101%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+  border-radius: inherit;
+}
+.btn-pill:hover::before {
+  transform: translateY(0);
+}
+.btn-pill:hover {
+  color: #F9F8F7;
+  border-color: #1A1A1A;
+}
+
+.btn-pill-inv {
+  @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300;
+  background: #1A1A1A;
+  color: #F9F8F7;
+  border: 1px solid #1A1A1A;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+.btn-pill-inv::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #F9F8F7;
+  transform: translateY(101%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+  border-radius: inherit;
+}
+.btn-pill-inv:hover::before {
+  transform: translateY(0);
+}
+.btn-pill-inv:hover {
+  color: #1A1A1A;
+}
+
+/* Card hover ring */
+.card-hover {
+  transition: box-shadow 0.3s ease, transform 0.3s var(--ease-spring);
+}
+.card-hover:hover {
+  box-shadow: 0 0 0 1px #1A1A1A, 0 8px 32px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* Text gradient */
+.text-gradient {
+  background: linear-gradient(135deg, #1A1A1A 0%, #6B6B6B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, #C8A882 0%, #8BA5A0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

@@ -1,286 +1,214 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Search, Menu, Bell, User } from 'lucide-react';
+import { Search, Bell, User, Pencil, LogOut } from 'lucide-react';
 import gsap from 'gsap';
 import { useForum } from '../forum/ForumProvider';
 
-export function HeroSection({
-  onRequestLogin,
-  onRequestCreatePost,
-  onRequestLogout,
-  onOpenUserCenter,
-}: {
-  onRequestLogin: () => void;
-  onRequestCreatePost: () => void;
-  onRequestLogout: () => void;
-  onOpenUserCenter: () => void;
+const TICKER = ['艾尔登法环','黑神话：悟空','原神','崩坏：星穹铁道','赛博朋克2077','塞尔达传说','王者荣耀','逃离塔科夫','Valorant','明日方舟','绝区零','Elden Ring DLC'];
+const TAGS = ['原神','王者荣耀','黑神话：悟空','崩铁','塔科夫','明日方舟'];
+const CHARS = 'NEXUS'.split('');
+
+export function HeroSection({ onRequestLogin, onRequestCreatePost, onRequestLogout, onOpenUserCenter }: {
+  onRequestLogin: () => void; onRequestCreatePost: () => void;
+  onRequestLogout: () => void; onOpenUserCenter: () => void;
 }) {
-  const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [focus, setFocus] = useState(false);
+  const [val, setVal] = useState('');
   const { currentUserId, notifications } = useForum();
-
-  const unreadCount = useMemo(() => {
+  const unread = useMemo(() => {
     if (!currentUserId) return 0;
-    return notifications.filter((n) => n.toUserId === currentUserId && !n.isRead).length;
+    return notifications.filter(n => n.toUserId === currentUserId && !n.isRead).length;
   }, [currentUserId, notifications]);
-  
   const { scrollY } = useScroll();
-  const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const bgY = useTransform(scrollY, [0, 600], [0, 110]);
+  const fade = useTransform(scrollY, [0, 380], [1, 0]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', fn, { passive: true });
+    return () => window.removeEventListener('scroll', fn);
   }, []);
 
   useEffect(() => {
-    // 标题入场动画
-    if (titleRef.current) {
-      const chars = titleRef.current.querySelectorAll('.char');
-      gsap.fromTo(chars, 
-        { y: 100, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 1,
-          stagger: 0.03,
-          ease: 'power3.out',
-          delay: 0.3
-        }
-      );
-    }
+    if (!titleRef.current) return;
+    const els = titleRef.current.querySelectorAll<HTMLElement>('.ch');
+    gsap.fromTo(els,
+      { y: 80, opacity: 0, rotateX: -40 },
+      { y: 0, opacity: 1, rotateX: 0, duration: 1.1, stagger: 0.04, ease: 'power4.out', delay: 0.25 }
+    );
   }, []);
-
-  const titleText = "GameHub";
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative min-h-screen w-full overflow-hidden bg-[#F9F8F7]"
-    >
-      {/* 背景装饰 */}
-      <motion.div 
-        className="absolute inset-0 pointer-events-none"
-        style={{ y: backgroundY }}
-      >
-        {/* 渐变圆环装饰 */}
-        <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-gradient-to-br from-gray-200/50 to-transparent blur-3xl" />
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full bg-gradient-to-bl from-gray-200/50 to-transparent blur-3xl" />
-        
-        {/* 网格背景 */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px'
-          }}
-        />
+    <section className="relative min-h-screen w-full overflow-hidden bg-[var(--c-bg)]">
+      {/* BG */}
+      <motion.div className="pointer-events-none absolute inset-0" style={{ y: bgY }} aria-hidden>
+        <div className="absolute -left-40 top-1/4 w-[500px] h-[500px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(197,168,130,0.10) 0%, transparent 70%)' }} />
+        <div className="absolute -right-32 top-1/2 w-[380px] h-[380px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(160,157,153,0.07) 0%, transparent 70%)' }} />
+        <div className="absolute left-1/3 -top-16 w-[280px] h-[280px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(197,168,130,0.07) 0%, transparent 70%)' }} />
+        <div className="absolute inset-0 opacity-[0.022]" style={{
+          backgroundImage: 'linear-gradient(rgba(26,25,24,0.7) 1px,transparent 1px),linear-gradient(90deg,rgba(26,25,24,0.7) 1px,transparent 1px)',
+          backgroundSize: '64px 64px',
+        }} />
       </motion.div>
 
-      {/* 导航栏 */}
-      <motion.nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled 
-            ? 'py-3 backdrop-blur-xl bg-white/70 border-b border-gray-200/40' 
-            : 'py-5 backdrop-blur-xl bg-white/35 border-b border-gray-200/20'
-        }`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      {/* NAV */}
+      <motion.nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'glass-nav-scrolled py-3' : 'glass-nav py-4'}`}
+        initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
-          {/* Logo */}
-          <motion.div 
-            className="flex items-center gap-2"
-            whileHover={{ scale: 1.02 }}
-          >
-            <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-              <span className="text-white text-sm font-bold">G</span>
+        <div className="max-w-7xl mx-auto px-5 lg:px-8 flex items-center gap-4">
+          <motion.div className="flex items-center gap-2.5 mr-2 flex-shrink-0 cursor-pointer select-none"
+            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--c-ink)' }}>
+              <span className="text-[var(--c-bg)] text-xs font-bold tracking-wider">NX</span>
             </div>
-            <span className="text-lg font-semibold tracking-tight">GameHub</span>
+            <span className="font-semibold text-base tracking-tight">NEXUS</span>
           </motion.div>
 
-          {/* 搜索栏 */}
-          <div className={`hidden md:flex items-center flex-1 max-w-md mx-8 transition-all duration-500 ${
-            isScrolled ? 'opacity-100' : 'opacity-85'
-          }`}>
-            <div className="relative w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="搜索游戏、帖子、玩家..."
-                className="w-full pl-11 pr-4 py-2.5 rounded-full bg-white/55 border border-gray-200/60 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/10 transition-all"
-              />
-            </div>
+          <div className={`hidden md:flex flex-1 max-w-xs relative transition-all duration-300 ${focus ? 'max-w-sm' : ''}`}>
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--c-ink-4)' }} />
+            <input value={val} onChange={e => setVal(e.target.value)}
+              onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
+              placeholder="搜索游戏、帖子…"
+              className="w-full pl-10 pr-4 py-2 rounded-full text-sm outline-none transition-all duration-300"
+              style={{
+                background: focus ? '#fff' : 'var(--c-surface-2)',
+                border: `1px solid ${focus ? 'var(--c-ink)' : 'var(--c-border)'}`,
+                color: 'var(--c-ink)', boxShadow: focus ? '0 0 0 3px rgba(26,25,24,0.06)' : 'none',
+              }} />
           </div>
 
-          {/* 右侧操作 */}
-          <div className="flex items-center gap-3">
-            <motion.button 
-              className="p-2.5 rounded-full hover:bg-gray-100 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                if (!currentUserId) return;
-                onOpenUserCenter();
-              }}
-            >
-              <span className="relative inline-flex">
+          <div className="flex-1" />
+          <div className="flex items-center gap-1">
+            {currentUserId && (
+              <motion.button className="relative p-2 rounded-full" style={{ color: 'var(--c-ink-2)' }}
+                whileHover={{ scale: 1.08, backgroundColor: 'var(--c-surface-2)' }}
+                whileTap={{ scale: 0.93 }} onClick={onOpenUserCenter}>
                 <Bell className="w-5 h-5" />
-                {unreadCount > 0 ? (
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-foreground" />
-                ) : null}
-              </span>
-            </motion.button>
-            <motion.button 
-              className="p-2.5 rounded-full hover:bg-gray-100 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Menu className="w-5 h-5" />
-            </motion.button>
-            {currentUserId ? (
-              <motion.button
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onRequestCreatePost}
-              >
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">发表帖子</span>
-              </motion.button>
-            ) : (
-              <motion.button
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onRequestLogin}
-              >
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">登录</span>
+                {unread > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: 'var(--c-ink)' }} />}
               </motion.button>
             )}
-
             {currentUserId ? (
+              <>
+                <motion.button
+                  className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium ml-1"
+                  style={{ background: 'var(--c-ink)', color: 'var(--c-bg)' }}
+                  whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onRequestCreatePost}>
+                  <Pencil className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">发表帖子</span>
+                </motion.button>
+                <motion.button className="p-2 rounded-full" style={{ color: 'var(--c-ink-3)' }}
+                  whileHover={{ scale: 1.08, backgroundColor: 'var(--c-surface-2)' }}
+                  whileTap={{ scale: 0.93 }} onClick={onRequestLogout} title="退出登录">
+                  <LogOut className="w-4 h-4" />
+                </motion.button>
+              </>
+            ) : (
               <motion.button
-                className="p-2.5 rounded-full hover:bg-gray-100 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onRequestLogout}
-                aria-label="退出"
-                title="退出"
-              >
-                <span className="text-xs font-medium">退出</span>
+                className="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium ml-1"
+                style={{ background: 'var(--c-ink)', color: 'var(--c-bg)' }}
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onRequestLogin}>
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">登录 / 注册</span>
               </motion.button>
-            ) : null}
+            )}
           </div>
         </div>
       </motion.nav>
 
-      {/* Hero 内容 */}
-      <motion.div 
-        className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6"
-        style={{ opacity }}
+      {/* HERO BODY */}
+      <motion.div
+        className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-center"
+        style={{ opacity: fade }}
       >
-        {/* 主标题 */}
-        <div className="text-center mb-8">
-          <h1 
-            ref={titleRef}
-            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter overflow-hidden"
-          >
-            {titleText.split('').map((char, index) => (
-              <span key={index} className="char inline-block">
-                {char}
-              </span>
-            ))}
-          </h1>
-          <motion.p 
-            className="mt-6 text-lg md:text-xl text-gray-500 font-light tracking-wide"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            发现好游戏，分享真快乐
-          </motion.p>
-        </div>
+        <motion.div className="section-label mb-8"
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.6 }}>
+          <span className="inline-block w-5 h-px" style={{ background: 'var(--c-ink-3)' }} />
+          {' '}游戏交流论坛{' '}
+          <span className="inline-block w-5 h-px" style={{ background: 'var(--c-ink-3)' }} />
+        </motion.div>
 
-        {/* 搜索框 */}
-        <motion.div 
-          className="w-full max-w-2xl"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.6 }}
-        >
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity" />
-            <div className="relative flex items-center bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 overflow-hidden">
-              <Search className="ml-5 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="搜索你感兴趣的游戏..."
-                className="flex-1 px-4 py-4 text-base bg-transparent border-0 focus:outline-none placeholder:text-gray-400"
-              />
-              <motion.button 
-                className="mr-2 px-6 py-2.5 rounded-full bg-foreground text-white text-sm font-medium transition-colors hover:bg-foreground/90"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                搜索
-              </motion.button>
-            </div>
+        <h1 ref={titleRef} className="flex gap-1 sm:gap-2 mb-6" style={{
+          fontFamily: "'DM Serif Display',serif",
+          fontSize: 'clamp(4.5rem,16vw,13rem)',
+          lineHeight: 1, letterSpacing: '-0.04em', perspective: '600px',
+        }}>
+          {CHARS.map((ch, i) => (
+            <span key={i} className="ch inline-block select-none" style={{ color: 'var(--c-ink)', opacity: 0 }}>{ch}</span>
+          ))}
+        </h1>
+
+        <motion.p className="text-base sm:text-lg mb-12 max-w-md"
+          style={{ color: 'var(--c-ink-3)', fontWeight: 300 }}
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.85, duration: 0.7 }}>
+          发现好游戏 · 分享真体验 · 遇见同好玩家
+        </motion.p>
+
+        <motion.div className="w-full max-w-xl mb-10"
+          initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
+          <div className={`relative flex items-center rounded-2xl overflow-hidden transition-all duration-300 ${
+            focus ? 'shadow-[0_0_0_2px_var(--c-ink)] bg-white' : 'shadow-[0_4px_28px_-4px_rgba(26,25,24,0.13)] bg-white'
+          }`}>
+            <Search className="ml-5 w-5 h-5 flex-shrink-0" style={{ color: 'var(--c-ink-4)' }} />
+            <input value={val} onChange={e => setVal(e.target.value)}
+              onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
+              placeholder="搜索你感兴趣的游戏…"
+              className="flex-1 px-4 py-4 text-sm bg-transparent border-0 outline-none"
+              style={{ color: 'var(--c-ink)' }} />
+            <motion.button className="mr-2 rounded-xl px-5 py-2.5 text-sm font-medium flex-shrink-0"
+              style={{ background: 'var(--c-ink)', color: 'var(--c-bg)' }}
+              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>搜索</motion.button>
           </div>
         </motion.div>
 
-        {/* 热门标签 */}
-        <motion.div 
-          className="mt-8 flex flex-wrap justify-center gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-        >
-          {['原神', '王者荣耀', '和平精英', '明日方舟', '崩坏：星穹铁道'].map((tag, index) => (
-            <motion.span
-              key={tag}
-              className="px-4 py-1.5 rounded-full bg-white/80 border border-gray-200 text-sm text-gray-600 hover:bg-white hover:border-gray-300 transition-all cursor-pointer"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.2 + index * 0.1 }}
-              whileHover={{ scale: 1.05, y: -2 }}
-            >
+        <motion.div className="flex flex-wrap justify-center items-center gap-2"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}>
+          <span className="text-xs mr-1" style={{ color: 'var(--c-ink-4)' }}>热搜：</span>
+          {TAGS.map((tag, i) => (
+            <motion.button key={tag} className="tag-badge cursor-pointer"
+              initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.2 + i * 0.07 }}
+              whileHover={{ scale: 1.07, y: -2 }} whileTap={{ scale: 0.96 }}>
               {tag}
-            </motion.span>
+            </motion.button>
           ))}
         </motion.div>
 
-        {/* 滚动提示 */}
-        <motion.div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-        >
-          <span className="text-xs text-gray-400 tracking-widest uppercase">Scroll</span>
-          <motion.div
-            className="w-5 h-8 rounded-full border-2 border-gray-300 flex justify-center pt-1"
-            animate={{ y: [0, 5, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            <motion.div 
-              className="w-1 h-2 rounded-full bg-gray-400"
-              animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            />
-          </motion.div>
+        <motion.div
+          className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}>
+          <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: 'var(--c-ink-4)' }}>Scroll</span>
+          <div className="w-5 h-8 rounded-full flex justify-center items-start pt-1.5"
+            style={{ border: '1.5px solid var(--c-border)' }}>
+            <motion.span className="w-1 h-1.5 rounded-full" style={{ background: 'var(--c-ink-3)' }}
+              animate={{ y: [0, 10, 0], opacity: [1, 0.2, 1] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }} />
+          </div>
         </motion.div>
       </motion.div>
+
+      {/* TICKER */}
+      <div className="absolute bottom-0 left-0 right-0 py-2.5 overflow-hidden"
+        style={{ borderTop: '1px solid var(--c-border)', background: 'rgba(249,248,247,0.82)', backdropFilter: 'blur(12px)' }}>
+        <div className="flex anim-ticker whitespace-nowrap select-none" aria-hidden>
+          {[...TICKER, ...TICKER].map((item, i) => (
+            <span key={i} className="inline-flex items-center gap-3 px-5 text-xs" style={{ color: 'var(--c-ink-3)' }}>
+              <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: 'var(--c-accent)' }} />
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

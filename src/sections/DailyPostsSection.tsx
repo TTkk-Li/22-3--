@@ -1,16 +1,7 @@
 import { useRef, useEffect, useMemo, useState } from 'react';
 import type { ElementType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MessageCircle, 
-  Heart, 
-  Eye, 
-  Share2, 
-  MoreHorizontal,
-  Flame,
-  Clock,
-  TrendingUp
-} from 'lucide-react';
+import { MessageCircle, Heart, Eye, Share2, Flame, Clock, TrendingUp } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useForum } from '../forum/ForumProvider';
@@ -18,133 +9,86 @@ import { formatTimeAgo } from '../forum/forumStorage';
 
 gsap.registerPlugin(ScrollTrigger);
 
-type SortType = 'hot' | 'new' | 'trending';
+type Sort = 'hot' | 'new' | 'trending';
 
-type DailyPostsSectionProps = {
-  onOpenPost: (postId: string) => void;
-};
-
-function formatNumber(num: number): string {
-  if (num >= 10000) {
-    return (num / 10000).toFixed(1) + 'w';
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k';
-  }
-  return num.toString();
+function fmt(n: number) {
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+  if (n >= 1000)  return (n / 1000).toFixed(1) + 'k';
+  return String(n);
 }
 
-export function DailyPostsSection({ onOpenPost }: DailyPostsSectionProps) {
+const SORTS: { type: Sort; label: string; icon: ElementType }[] = [
+  { type: 'hot',      label: '最热',  icon: Flame },
+  { type: 'new',      label: '最新',  icon: Clock },
+  { type: 'trending', label: '趋势',  icon: TrendingUp },
+];
+
+export function DailyPostsSection({ onOpenPost }: { onOpenPost: (id: string) => void }) {
   const sectionRef = useRef<HTMLElement>(null);
-  const [sortBy, setSortBy] = useState<SortType>('hot');
-  const { posts: forumPosts, getUserById } = useForum();
-  const [visibleCount, setVisibleCount] = useState(5);
+  const [sort, setSort]           = useState<Sort>('hot');
+  const [visible, setVisible]     = useState(5);
+  const { posts, getUserById }    = useForum();
 
-  const dailyPosts = useMemo(() => {
-    const base = forumPosts;
-    if (sortBy === 'new')
-      return base.sort((a, b) => (b.createdAtISO > a.createdAtISO ? 1 : -1));
-    if (sortBy === 'trending')
-      return base.sort(
-        (a, b) => b.stats.likes * 2 + b.stats.comments - (a.stats.likes * 2 + a.stats.comments)
-      );
-    // hot：用点赞 + 评论权重模拟热度
-    return base.sort((a, b) => b.stats.likes + b.stats.comments * 2 - (a.stats.likes + a.stats.comments * 2));
-  }, [forumPosts, sortBy]);
+  const sorted = useMemo(() => {
+    const base = [...posts];
+    if (sort === 'new')      return base.sort((a, b) => b.createdAtISO > a.createdAtISO ? 1 : -1);
+    if (sort === 'trending') return base.sort((a, b) =>
+      b.stats.likes * 2 + b.stats.comments - (a.stats.likes * 2 + a.stats.comments));
+    return base.sort((a, b) =>
+      b.stats.likes + b.stats.comments * 2 - (a.stats.likes + a.stats.comments * 2));
+  }, [posts, sort]);
 
-  const visiblePosts = useMemo(() => dailyPosts.slice(0, visibleCount), [dailyPosts, visibleCount]);
+  const slice = sorted.slice(0, visible);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-
-    const triggers: ScrollTrigger[] = [];
-
-    // 标题动画
-    const titleTrigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top 80%',
-      once: true,
+    const st = ScrollTrigger.create({
+      trigger: section, start: 'top 80%', once: true,
       onEnter: () => {
-        gsap.fromTo('.daily-title',
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }
-        );
-      }
+        gsap.fromTo('.daily-heading',
+          { y: 44, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' });
+        gsap.fromTo('.post-row',
+          { y: 36, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.07, ease: 'power3.out', delay: 0.2 });
+      },
     });
-    triggers.push(titleTrigger);
-
-    // 帖子列表动画
-    const postTrigger = ScrollTrigger.create({
-      trigger: '.posts-list',
-      start: 'top 85%',
-      once: true,
-      onEnter: () => {
-        gsap.fromTo('.post-item',
-          { y: 40, opacity: 0 },
-          { 
-            y: 0, 
-            opacity: 1, 
-            duration: 0.6, 
-            stagger: 0.08,
-            ease: 'power3.out' 
-          }
-        );
-      }
-    });
-    triggers.push(postTrigger);
-
-    return () => {
-      triggers.forEach(t => t.kill());
-    };
+    return () => st.kill();
   }, []);
 
-  useEffect(() => {
-    setVisibleCount(5);
-  }, [sortBy]);
-
-  const handleSort = (type: SortType) => {
-    setSortBy(type);
-  };
-
-  const sortOptions: { type: SortType; label: string; icon: ElementType }[] = [
-    { type: 'hot', label: '最热', icon: Flame },
-    { type: 'new', label: '最新', icon: Clock },
-    { type: 'trending', label: '趋势', icon: TrendingUp },
-  ];
+  useEffect(() => setVisible(5), [sort]);
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative py-24 lg:py-32 bg-[#F9F8F7]"
-    >
-      <div className="max-w-4xl mx-auto px-6 lg:px-8">
-        {/* 标题区域 */}
-        <div className="daily-title mb-10">
-          <motion.span 
-            className="inline-block px-4 py-1.5 rounded-full bg-foreground/5 text-sm text-foreground/60 mb-4"
-          >
-            今日话题
-          </motion.span>
-          <div className="flex items-end justify-between">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              每日帖子
-            </h2>
-            
-            {/* 排序选项 */}
-            <div className="flex items-center gap-1 bg-white rounded-full p-1 border border-gray-200">
-              {sortOptions.map(({ type, label, icon: Icon }) => (
+    <section ref={sectionRef} className="relative py-24 lg:py-32 bg-[var(--c-bg)]">
+      <div className="max-w-3xl mx-auto px-5 lg:px-8">
+
+        {/* Heading */}
+        <div className="daily-heading mb-10">
+          <span className="section-label mb-3 block">今日话题</span>
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <h2 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              letterSpacing: '-0.03em',
+              color: 'var(--c-ink)',
+            }}>每日帖子</h2>
+
+            {/* Sort tabs */}
+            <div className="flex items-center gap-1 rounded-full p-1"
+              style={{ background: '#fff', border: '1px solid var(--c-border)' }}>
+              {SORTS.map(({ type, label, icon: Icon }) => (
                 <motion.button
                   key={type}
-                  onClick={() => handleSort(type)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    sortBy === type
-                      ? 'bg-foreground text-white'
-                      : 'text-gray-500 hover:text-foreground'
-                  }`}
+                  onClick={() => setSort(type)}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-colors duration-200"
+                  style={{
+                    background:  sort === type ? 'var(--c-ink)' : 'transparent',
+                    color:       sort === type ? 'var(--c-bg)'  : 'var(--c-ink-3)',
+                  }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">{label}</span>
                 </motion.button>
               ))}
@@ -152,135 +96,111 @@ export function DailyPostsSection({ onOpenPost }: DailyPostsSectionProps) {
           </div>
         </div>
 
-        {/* 帖子列表 */}
-        <div className="posts-list space-y-4">
-          <AnimatePresence mode="wait">
-            {visiblePosts.length === 0 ? (
-              <div className="text-sm text-muted-foreground p-8 rounded-2xl border border-border/60 bg-white">
-                暂无帖子。你可以先选择任意板块发表内容。
-              </div>
-            ) : (
-              visiblePosts.map((post) => (
-              <motion.article
-                key={post.id}
-                className="post-item group bg-white rounded-2xl p-5 border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50 cursor-pointer"
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                whileHover={{ y: -4 }}
-                onClick={() => onOpenPost(post.id)}
-                role="button"
-                tabIndex={0}
+        {/* List */}
+        <div className="space-y-3">
+          <AnimatePresence mode="popLayout">
+            {slice.length === 0 ? (
+              <motion.div key="empty"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="text-sm py-12 text-center rounded-2xl"
+                style={{ color: 'var(--c-ink-3)', border: '1px dashed var(--c-border)', background: '#fff' }}
               >
-                <div className="flex gap-4">
-                  {/* 左侧：封面图或游戏标签 */}
-                  <div className="flex-shrink-0">
+                暂无帖子，先去各板块发表内容吧。
+              </motion.div>
+            ) : slice.map((post) => {
+              const author = getUserById(post.authorId);
+              return (
+                <motion.article
+                  key={post.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="post-row group flex gap-4 p-4 rounded-2xl cursor-pointer transition-all duration-300"
+                  style={{ background: '#fff', border: '1px solid var(--c-border)' }}
+                  whileHover={{ y: -3, boxShadow: '0 12px 36px -8px rgba(26,25,24,0.10)' }}
+                  onClick={() => onOpenPost(post.id)}
+                  role="button" tabIndex={0}
+                >
+                  {/* Thumbnail */}
+                  <div className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden img-zoom">
                     {post.coverImage ? (
-                      <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden img-hover-zoom">
-                        <img
-                          src={post.coverImage}
-                          alt={post.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                      <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
-                        <span className="text-xs text-gray-400 text-center px-2">
-                          {post.game}
-                        </span>
+                      <div className="w-full h-full flex items-center justify-center text-xs text-center px-1"
+                        style={{ background: 'var(--c-surface-2)', color: 'var(--c-ink-4)' }}>
+                        {post.game}
                       </div>
                     )}
                   </div>
 
-                  {/* 右侧：内容 */}
-                  <div className="flex-1 min-w-0">
-                    {/* 标题行 */}
-                    <div className="flex items-start gap-2 mb-2">
-                      {post.tag ? (
-                        <span className="flex-shrink-0 px-2 py-0.5 rounded bg-foreground/5 text-foreground/70 border border-foreground/10 text-xs font-medium">
-                          热
-                        </span>
-                      ) : null}
-                      <h3 className="text-base md:text-lg font-semibold line-clamp-1 group-hover:text-foreground/80 transition-colors">
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 flex flex-col gap-1">
+                    <div className="flex items-start gap-2">
+                      {post.tag && (
+                        <span className="flex-shrink-0 tag-badge">{post.tag}</span>
+                      )}
+                      <h3 className="text-sm font-semibold leading-snug line-clamp-2"
+                        style={{ color: 'var(--c-ink)' }}>
                         {post.title}
                       </h3>
                     </div>
-
-                    {/* 内容摘要 */}
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">
-                      {post.content}
+                    <p className="text-xs line-clamp-2 leading-relaxed"
+                      style={{ color: 'var(--c-ink-3)' }}>
+                      {post.excerpt || post.content}
                     </p>
-
-                    {/* 底部信息 */}
-                    <div className="flex items-center justify-between">
-                      {/* 作者信息 */}
+                    <div className="flex items-center justify-between mt-auto pt-2"
+                      style={{ borderTop: '1px solid var(--c-surface-2)' }}>
                       <div className="flex items-center gap-2">
-                        <img
-                          src={getUserById(post.authorId)?.avatarUrl ?? ''}
-                          alt={getUserById(post.authorId)?.username ?? ''}
-                          className="w-6 h-6 rounded-full bg-gray-100 img-grayscale"
-                        />
-                        <span className="text-sm text-gray-600">{getUserById(post.authorId)?.username ?? ''}</span>
-                        <span className="text-xs text-gray-400">Lv.{getUserById(post.authorId)?.level ?? 1}</span>
-                        <span className="text-xs text-gray-300">·</span>
-                        <span className="text-xs text-gray-400">{formatTimeAgo(post.createdAtISO)}</span>
+                        <img src={author?.avatarUrl ?? ''} alt={author?.username ?? ''}
+                          className="w-5 h-5 rounded-full av-gs"
+                          style={{ background: 'var(--c-surface-2)' }} />
+                        <span className="text-xs" style={{ color: 'var(--c-ink-2)' }}>{author?.username ?? '—'}</span>
+                        <span className="text-xs" style={{ color: 'var(--c-ink-4)' }}>·</span>
+                        <span className="text-xs" style={{ color: 'var(--c-ink-4)' }}>{formatTimeAgo(post.createdAtISO)}</span>
                       </div>
-
-                      {/* 操作按钮 */}
-                      <div className="flex items-center gap-1">
-                        <motion.button 
-                          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                          whileHover={{ scale: 1.1 }}
+                      <div className="flex items-center gap-3">
+                        {[
+                          { icon: Eye,           val: post.stats.views },
+                          { icon: Heart,         val: post.stats.likes },
+                          { icon: MessageCircle, val: post.stats.comments },
+                        ].map(({ icon: Icon, val }, idx) => (
+                          <span key={idx} className="flex items-center gap-1 text-[11px]"
+                            style={{ color: 'var(--c-ink-4)' }}>
+                            <Icon className="w-3 h-3" />{fmt(val)}
+                          </span>
+                        ))}
+                        <motion.button
+                          className="p-1 rounded-full transition-colors"
+                          whileHover={{ scale: 1.15, backgroundColor: 'var(--c-surface-2)' }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={e => e.stopPropagation()}
                         >
-                          <Share2 className="w-4 h-4 text-gray-400" />
-                        </motion.button>
-                        <motion.button 
-                          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                          <Share2 className="w-3.5 h-3.5" style={{ color: 'var(--c-ink-4)' }} />
                         </motion.button>
                       </div>
-                    </div>
-
-                    {/* 统计数据 */}
-                    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-50">
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
-                        <Eye className="w-3.5 h-3.5" />
-                        {formatNumber(post.stats.views)}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
-                        <Heart className="w-3.5 h-3.5" />
-                        {formatNumber(post.stats.likes)}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        {formatNumber(post.stats.comments)}
-                      </span>
                     </div>
                   </div>
-                </div>
-              </motion.article>
-              ))
-            )}
+                </motion.article>
+              );
+            })}
           </AnimatePresence>
         </div>
 
-        {/* 加载更多 */}
-        <div className="mt-10 text-center">
-          <motion.button
-            className="pill-button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setVisibleCount((c) => Math.min(dailyPosts.length, c + 5))}
-            disabled={visibleCount >= dailyPosts.length}
-          >
-            <span>加载更多</span>
-          </motion.button>
-        </div>
+        {/* Load more */}
+        {visible < sorted.length && (
+          <div className="mt-8 text-center">
+            <motion.button
+              className="btn-outline"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setVisible(v => Math.min(sorted.length, v + 5))}
+            >
+              <span>加载更多</span>
+            </motion.button>
+          </div>
+        )}
       </div>
     </section>
   );

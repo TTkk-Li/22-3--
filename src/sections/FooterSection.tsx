@@ -1,133 +1,84 @@
 import { motion } from 'framer-motion';
-import { 
-  Gamepad2, 
-  Twitter, 
-  Github, 
-  Youtube, 
-  Mail,
-  ChevronRight
-} from 'lucide-react';
+import { Twitter, Github, Youtube, Mail, Gamepad2, ChevronRight } from 'lucide-react';
 
-const footerLinks = {
-  product: {
-    title: '产品',
-    links: [
-      { name: '游戏库', href: '#' },
-      { name: '社区论坛', href: '#' },
-      { name: '排行榜', href: '#' },
-      { name: '新闻资讯', href: '#' },
-    ]
-  },
-  support: {
-    title: '支持',
-    links: [
-      { name: '帮助中心', href: '#' },
-      { name: '用户协议', href: '#' },
-      { name: '隐私政策', href: '#' },
-      { name: '联系我们', href: '#' },
-    ]
-  },
-  company: {
-    title: '关于',
-    links: [
-      { name: '关于我们', href: '#' },
-      { name: '加入我们', href: '#' },
-      { name: '合作伙伴', href: '#' },
-      { name: '品牌资源', href: '#' },
-    ]
-  }
+const LINKS = {
+  product: { title: '产品', items: ['游戏库','社区论坛','排行榜','新闻资讯'] },
+  support: { title: '支持', items: ['帮助中心','用户协议','隐私政策','联系我们'] },
+  company: { title: '关于', items: ['关于我们','加入我们','合作伙伴','品牌资源'] },
 };
-
-const socialLinks = [
-  { name: 'Twitter', icon: Twitter, href: '#' },
-  { name: 'Github', icon: Github, href: '#' },
-  { name: 'Youtube', icon: Youtube, href: '#' },
-  { name: 'Email', icon: Mail, href: '#' },
+const SOCIALS = [
+  { label: 'Twitter', Icon: Twitter },
+  { label: 'Github',  Icon: Github  },
+  { label: 'Youtube', Icon: Youtube },
+  { label: 'Email',   Icon: Mail    },
 ];
 
 export function FooterSection() {
   return (
-    <footer className="relative bg-foreground text-white overflow-hidden">
-      {/* 背景装饰 */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
+    <footer className="relative overflow-hidden" style={{ background: 'var(--c-ink)', color: 'var(--c-bg)' }}>
+      {/* subtle orbs */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute top-0 left-1/4 w-80 h-80 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)' }} />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-20">
-        {/* 顶部区域 */}
+      <div className="relative max-w-7xl mx-auto px-5 lg:px-8 py-16 lg:py-20">
+        {/* Top grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16">
-          {/* 左侧：品牌信息 */}
-          <div>
-            <motion.div 
-              className="flex items-center gap-3 mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center">
-                <Gamepad2 className="w-5 h-5 text-foreground" />
+          {/* Brand */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.7 }}
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                <Gamepad2 className="w-4.5 h-4.5" style={{ color: 'var(--c-bg)' }} />
               </div>
-              <span className="text-2xl font-bold">GameHub</span>
-            </motion.div>
-            
-            <motion.p 
-              className="text-white/60 text-lg mb-8 max-w-md"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
+              <span className="text-xl font-semibold tracking-tight">NEXUS</span>
+            </div>
+            <p className="text-sm leading-relaxed mb-8 max-w-xs" style={{ color: 'rgba(249,248,247,0.5)' }}>
               发现好游戏，分享真快乐。加入数百万玩家的社区，探索无限游戏世界。
-            </motion.p>
-
-            {/* 订阅表单 */}
-            <motion.div 
-              className="flex gap-3 max-w-md"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <input
-                type="email"
-                placeholder="输入邮箱订阅资讯"
-                className="flex-1 px-4 py-3 rounded-full bg-white/10 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors text-sm"
-              />
+            </p>
+            {/* Email sub */}
+            <div className="flex gap-2 max-w-sm">
+              <input type="email" placeholder="输入邮箱订阅资讯"
+                className="flex-1 px-4 py-2.5 rounded-full text-sm outline-none"
+                style={{
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  color: 'var(--c-bg)',
+                }} />
               <motion.button
-                className="px-6 py-3 rounded-full bg-white text-foreground text-sm font-medium hover:bg-white/90 transition-colors"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+                className="px-5 py-2.5 rounded-full text-sm font-medium flex-shrink-0"
+                style={{ background: 'var(--c-bg)', color: 'var(--c-ink)' }}
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                 订阅
               </motion.button>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
 
-          {/* 右侧：链接列表 */}
+          {/* Links */}
           <div className="grid grid-cols-3 gap-8">
-            {Object.entries(footerLinks).map(([key, section], sectionIndex) => (
-              <motion.div
-                key={key}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.1 * sectionIndex }}
-              >
-                <h4 className="text-sm font-semibold uppercase tracking-wider mb-4 text-white/40">
-                  {section.title}
+            {Object.entries(LINKS).map(([key, { title, items }], si) => (
+              <motion.div key={key}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ duration: 0.7, delay: si * 0.08 }}>
+                <h4 className="text-xs font-semibold uppercase tracking-widest mb-4"
+                  style={{ color: 'rgba(249,248,247,0.35)' }}>
+                  {title}
                 </h4>
-                <ul className="space-y-3">
-                  {section.links.map((link) => (
-                    <li key={link.name}>
-                      <motion.a
-                        href={link.href}
-                        className="group flex items-center gap-1 text-white/70 hover:text-white transition-colors text-sm"
-                        whileHover={{ x: 4 }}
-                      >
-                        <span>{link.name}</span>
-                        <ChevronRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                <ul className="space-y-2.5">
+                  {items.map(name => (
+                    <li key={name}>
+                      <motion.a href="#"
+                        className="group flex items-center gap-1 text-sm transition-colors duration-200"
+                        style={{ color: 'rgba(249,248,247,0.55)' }}
+                        whileHover={{ x: 4, color: 'rgba(249,248,247,1)' } as never}>
+                        {name}
+                        <ChevronRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                       </motion.a>
                     </li>
                   ))}
@@ -137,45 +88,28 @@ export function FooterSection() {
           </div>
         </div>
 
-        {/* 分隔线 */}
-        <div className="h-px bg-white/10 mb-8" />
+        {/* Divider */}
+        <div className="h-px mb-8" style={{ background: 'rgba(255,255,255,0.08)' }} />
 
-        {/* 底部区域 */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* 版权信息 */}
-          <motion.p 
-            className="text-white/40 text-sm"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            © 2024 GameHub. All rights reserved.
+        {/* Bottom */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <motion.p className="text-xs" style={{ color: 'rgba(249,248,247,0.35)' }}
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+            viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            © 2025 NEXUS Gaming. All rights reserved.
           </motion.p>
-
-          {/* 社交媒体 */}
-          <motion.div 
-            className="flex items-center gap-2"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            {socialLinks.map((social) => {
-              const Icon = social.icon;
-              return (
-                <motion.a
-                  key={social.name}
-                  href={social.href}
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 hover:text-white transition-all"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  aria-label={social.name}
-                >
-                  <Icon className="w-4 h-4" />
-                </motion.a>
-              );
-            })}
+          <motion.div className="flex items-center gap-1.5"
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+            viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}>
+            {SOCIALS.map(({ label, Icon }) => (
+              <motion.a key={label} href="#" aria-label={label}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(249,248,247,0.5)' }}
+                whileHover={{ scale: 1.12, y: -2, backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(249,248,247,1)' } as never}
+                whileTap={{ scale: 0.93 }}>
+                <Icon className="w-4 h-4" />
+              </motion.a>
+            ))}
           </motion.div>
         </div>
       </div>

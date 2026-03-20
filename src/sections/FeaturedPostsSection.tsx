@@ -7,240 +7,197 @@ import { useForum } from '../forum/ForumProvider';
 
 gsap.registerPlugin(ScrollTrigger);
 
-type FeaturedPostsSectionProps = {
-  onOpenPost: (postId: string) => void;
-};
-
-function formatNumber(num: number): string {
-  if (num >= 10000) {
-    return (num / 10000).toFixed(1) + 'w';
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k';
-  }
-  return num.toString();
+function fmt(n: number) {
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+  if (n >= 1000)  return (n / 1000).toFixed(1) + 'k';
+  return String(n);
 }
 
-export function FeaturedPostsSection({ onOpenPost }: FeaturedPostsSectionProps) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+export function FeaturedPostsSection({ onOpenPost }: { onOpenPost: (id: string) => void }) {
+  const sectionRef    = useRef<HTMLElement>(null);
+  const scrollRef     = useRef<HTMLDivElement>(null);
+  const [canL, setCanL] = useState(false);
+  const [canR, setCanR] = useState(true);
   const { posts, getUserById } = useForum();
 
-  // 精选：按互动热度（点赞/评论）排序取前若干
-  const featuredPosts = posts
-    .slice()
+  const featured = [...posts]
     .sort((a, b) => (b.stats.likes + b.stats.comments * 2) - (a.stats.likes + a.stats.comments * 2));
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-
-    const triggers: ScrollTrigger[] = [];
-
-    // 标题动画
-    const titleTrigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top 80%',
-      once: true,
-      onEnter: () => {
-        gsap.fromTo('.featured-title',
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }
-        );
-      }
+    const st = ScrollTrigger.create({
+      trigger: section, start: 'top 80%', once: true,
+      onEnter: () =>
+        gsap.fromTo('.feat-heading',
+          { y: 44, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' }),
     });
-    triggers.push(titleTrigger);
-
-    return () => {
-      triggers.forEach(t => t.kill());
-    };
+    return () => st.kill();
   }, []);
 
-  const checkScrollButtons = () => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    
-    setCanScrollLeft(container.scrollLeft > 0);
-    setCanScrollRight(
-      container.scrollLeft < container.scrollWidth - container.clientWidth - 10
-    );
+  const sync = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanL(el.scrollLeft > 4);
+    setCanR(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
   };
-
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', sync, { passive: true });
+    sync();
+    return () => el.removeEventListener('scroll', sync);
+  }, [featured.length]);
 
-    container.addEventListener('scroll', checkScrollButtons, { passive: true });
-    checkScrollButtons();
-
-    return () => container.removeEventListener('scroll', checkScrollButtons);
-  }, []);
-
-  const scroll = (direction: 'left' | 'right') => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const scrollAmount = 400;
-    container.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth'
-    });
-  };
+  const scroll = (dir: 'left' | 'right') =>
+    scrollRef.current?.scrollBy({ left: dir === 'left' ? -420 : 420, behavior: 'smooth' });
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative py-24 lg:py-32 bg-[#F9F8F7] overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* 标题区域 */}
-        <div className="featured-title flex items-end justify-between mb-12">
-          <div>
-            <motion.span 
-              className="inline-block px-4 py-1.5 rounded-full bg-foreground/5 text-sm text-foreground/60 mb-4"
-            >
-              精选内容
-            </motion.span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              热门帖子
-            </h2>
+    <section ref={sectionRef} className="relative py-24 lg:py-32 overflow-hidden bg-[var(--c-bg)]">
+      <div className="max-w-7xl mx-auto px-5 lg:px-8">
+        {/* Heading row */}
+        <div className="feat-heading flex items-end justify-between mb-10">
+          <div className="flex flex-col gap-2">
+            <span className="section-label">精选内容</span>
+            <h2 style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              letterSpacing: '-0.03em',
+              color: 'var(--c-ink)',
+            }}>热门帖子</h2>
           </div>
-          
-          {/* 滚动按钮 */}
+          {/* Nav buttons */}
           <div className="hidden md:flex items-center gap-2">
-            <motion.button
-              onClick={() => scroll('left')}
-              className={`w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center transition-all ${
-                canScrollLeft 
-                  ? 'bg-white hover:bg-gray-50 text-foreground' 
-                  : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-              }`}
-              whileHover={canScrollLeft ? { scale: 1.05 } : {}}
-              whileTap={canScrollLeft ? { scale: 0.95 } : {}}
-              disabled={!canScrollLeft}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <motion.button
-              onClick={() => scroll('right')}
-              className={`w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center transition-all ${
-                canScrollRight 
-                  ? 'bg-white hover:bg-gray-50 text-foreground' 
-                  : 'bg-gray-100 text-gray-300 cursor-not-allowed'
-              }`}
-              whileHover={canScrollRight ? { scale: 1.05 } : {}}
-              whileTap={canScrollRight ? { scale: 0.95 } : {}}
-              disabled={!canScrollRight}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </motion.button>
+            {(['left','right'] as const).map(dir => {
+              const active = dir === 'left' ? canL : canR;
+              return (
+                <motion.button
+                  key={dir}
+                  onClick={() => scroll(dir)}
+                  disabled={!active}
+                  className="w-11 h-11 rounded-full flex items-center justify-center transition-colors duration-200"
+                  style={{
+                    background: active ? '#fff' : 'var(--c-surface-2)',
+                    border: '1px solid var(--c-border)',
+                    color: active ? 'var(--c-ink)' : 'var(--c-ink-4)',
+                    cursor: active ? 'pointer' : 'default',
+                  }}
+                  whileHover={active ? { scale: 1.08 } : {}}
+                  whileTap={active ? { scale: 0.93 } : {}}
+                >
+                  {dir === 'left'
+                    ? <ChevronLeft className="w-5 h-5" />
+                    : <ChevronRight className="w-5 h-5" />}
+                </motion.button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* 水平滚动容器 */}
-      <div 
-        ref={scrollContainerRef}
-        className="flex gap-6 overflow-x-auto pb-8 px-6 lg:px-8 no-scrollbar"
-        style={{ scrollSnapType: 'x mandatory' }}
+      {/* Horizontal scroll */}
+      <div
+        ref={scrollRef}
+        className="flex gap-5 overflow-x-auto pb-6 no-scrollbar snap-x-mandatory"
+        style={{ paddingLeft: 'max(1.25rem, calc((100vw - 80rem) / 2 + 1.25rem))', paddingRight: '1.25rem' }}
       >
-        {/* 左侧留白 */}
-        <div className="flex-shrink-0 w-[calc((100vw-1280px)/2)] hidden xl:block" />
-        
-        {featuredPosts.length === 0 ? (
-          <div className="flex items-center h-52 px-2 text-sm text-muted-foreground">
+        {featured.length === 0 ? (
+          <div className="flex items-center justify-center h-56 px-8 text-sm" style={{ color: 'var(--c-ink-3)' }}>
             暂无精选帖子，先去各板块发表内容吧。
           </div>
-        ) : featuredPosts.map((post, index) => (
-          <motion.article
-            key={post.id}
-            className="featured-post-card group flex-shrink-0 w-[340px] md:w-[400px] bg-white rounded-2xl overflow-hidden border border-gray-100 scroll-snap-align-start cursor-pointer"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ 
-              duration: 0.6, 
-              delay: index * 0.1,
-              ease: [0.16, 1, 0.3, 1]
-            }}
-            whileHover={{ y: -8, scale: 1.02 }}
-            onClick={() => onOpenPost(post.id)}
-            role="button"
-            tabIndex={0}
-          >
-            {/* 图片区域 */}
-            <div className="relative h-52 overflow-hidden img-hover-zoom">
-              <img
-                src={post.coverImage}
-                alt={post.title}
-                className="w-full h-full object-cover"
-              />
-              {/* 标签 */}
-              <div className="absolute top-4 left-4">
-                <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-foreground">
-                  {post.tag ?? '精选'}
-                </span>
-              </div>
-              {/* 游戏名 */}
-              <div className="absolute bottom-4 left-4">
-                <span className="px-3 py-1 rounded-full bg-foreground/80 backdrop-blur-sm text-xs font-medium text-white">
-                  {post.game}
-                </span>
-              </div>
-            </div>
-
-            {/* 内容区域 */}
-            <div className="p-5">
-              <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-foreground/80 transition-colors">
-                {post.title}
-              </h3>
-              <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                {post.excerpt}
-              </p>
-
-              {/* 作者信息 */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2">
-                  <img
-                    src={getUserById(post.authorId)?.avatarUrl ?? ''}
-                    alt={getUserById(post.authorId)?.username ?? ''}
-                    className="w-7 h-7 rounded-full bg-gray-100 img-grayscale"
-                  />
-                  <span className="text-sm text-gray-600">{getUserById(post.authorId)?.username ?? ''}</span>
+        ) : featured.map((post, idx) => {
+          const author = getUserById(post.authorId);
+          return (
+            <motion.article
+              key={post.id}
+              className="group snap-start flex-shrink-0 w-[320px] md:w-[380px] rounded-2xl overflow-hidden cursor-pointer"
+              style={{
+                background: '#fff',
+                border: '1px solid var(--c-border)',
+              }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.55, delay: Math.min(idx * 0.08, 0.4), ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -8, scale: 1.02, boxShadow: '0 20px 48px -8px rgba(26,25,24,0.13)' }}
+              onClick={() => onOpenPost(post.id)}
+              tabIndex={0}
+              role="button"
+            >
+              {/* Cover image */}
+              <div className="relative h-48 overflow-hidden img-zoom">
+                {post.coverImage ? (
+                  <img src={post.coverImage} alt={post.title}
+                    className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center"
+                    style={{ background: 'var(--c-surface-2)' }}>
+                    <span className="text-sm" style={{ color: 'var(--c-ink-4)' }}>{post.game}</span>
+                  </div>
+                )}
+                {/* Tag overlay */}
+                <div className="absolute top-3 left-3 flex gap-2">
+                  {post.tag && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium"
+                      style={{ background: 'rgba(249,248,247,0.92)', backdropFilter: 'blur(8px)', color: 'var(--c-ink)' }}>
+                      {post.tag}
+                    </span>
+                  )}
                 </div>
-
-                {/* 统计数据 */}
-                <div className="flex items-center gap-3 text-xs text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3.5 h-3.5" />
-                    {formatNumber(post.stats.views)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Heart className="w-3.5 h-3.5" />
-                    {formatNumber(post.stats.likes)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    {formatNumber(post.stats.comments)}
+                <div className="absolute bottom-3 left-3">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-medium"
+                    style={{ background: 'rgba(26,25,24,0.75)', backdropFilter: 'blur(8px)', color: '#F9F8F7' }}>
+                    {post.game}
                   </span>
                 </div>
               </div>
-            </div>
-          </motion.article>
-        ))}
-        
-        {/* 右侧留白 */}
-        <div className="flex-shrink-0 w-6 xl:w-[calc((100vw-1280px)/2)]" />
+
+              {/* Body */}
+              <div className="p-4">
+                <h3 className="text-sm font-semibold leading-snug mb-2 line-clamp-2 transition-colors duration-200"
+                  style={{ color: 'var(--c-ink)' }}>
+                  {post.title}
+                </h3>
+                <p className="text-xs leading-relaxed mb-4 line-clamp-2"
+                  style={{ color: 'var(--c-ink-3)' }}>
+                  {post.excerpt}
+                </p>
+
+                {/* Author + stats */}
+                <div className="flex items-center justify-between pt-3"
+                  style={{ borderTop: '1px solid var(--c-border)' }}>
+                  <div className="flex items-center gap-2">
+                    <img src={author?.avatarUrl ?? ''} alt={author?.username ?? ''}
+                      className="w-6 h-6 rounded-full av-gs"
+                      style={{ background: 'var(--c-surface-2)' }} />
+                    <span className="text-xs" style={{ color: 'var(--c-ink-2)' }}>{author?.username ?? '—'}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {[
+                      { icon: Eye,           val: post.stats.views },
+                      { icon: Heart,         val: post.stats.likes },
+                      { icon: MessageCircle, val: post.stats.comments },
+                    ].map(({ icon: Icon, val }) => (
+                      <span key={Icon.displayName} className="flex items-center gap-1 text-[11px]"
+                        style={{ color: 'var(--c-ink-4)' }}>
+                        <Icon className="w-3 h-3" />{fmt(val)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.article>
+          );
+        })}
+        <div className="flex-shrink-0 w-5" />
       </div>
 
-      {/* 移动端滚动提示 */}
+      {/* Mobile hint */}
       <div className="md:hidden flex justify-center mt-4">
-        <div className="flex items-center gap-2 text-sm text-gray-400">
-          <span>左右滑动查看更多</span>
-          <ChevronRight className="w-4 h-4 animate-pulse" />
-        </div>
+        <span className="text-xs flex items-center gap-1" style={{ color: 'var(--c-ink-4)' }}>
+          左右滑动查看更多 <ChevronRight className="w-3 h-3" />
+        </span>
       </div>
     </section>
   );
