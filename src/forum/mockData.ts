@@ -122,4 +122,15 @@ export const initialPosts: ForumPost[] = [
     id: 'p-demo-7',
     categoryId: 'cat-2',
     title: '聊聊我心目中游戏史上最美的10个场景 — 截图党的年度精选',
-    content: 
+    content:
+      '作为一个重度截图党，我对“游戏中的美”有点执念。它不只是高画质，而是灯光、构图、情绪与叙事的共同作用。比如巫师3黄昏下的威伦旷野、对马岛之魂红叶林中的决斗场、荒野大镖客2清晨薄雾里的山谷，这些场景每次重看都仍然能让我起鸡皮疙瘩。本文整理了我个人心目中最美的10个场景，也欢迎大家在评论区补充你们的“神截图”坐标。',
+    excerpt:
+      '作为重度截图党，我整理了心目中最美的10个游戏场景：不止高画质，更是灯光、构图与情绪的共振。欢迎补充你的神截图坐标。',
+    game: '游戏杂谈',
+    coverImage: 'https://images.unsplash.com/photo-1472457974886-0ebcd59440cc?w=800&q=80',
+    tag: '杂谈',
+    authorId: 'u-风景党',
+    createdAtISO: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    stats: { views: 18700, likes: 1260, comments: 219 },
+  },
+];
