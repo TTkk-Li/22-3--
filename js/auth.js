@@ -86,6 +86,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 导航栏用户状态更新
   updateNavUserStatus();
+  
+  // 更新侧边栏用户信息
+  updateSidebarUserCard();
 });
 
 // 更新导航栏用户状态
@@ -99,9 +102,10 @@ function updateNavUserStatus() {
     if (currentUser) {
       // 已登录状态
       userItem.innerHTML = `
-        <a href="#"><i class="fas fa-user-circle"></i> ${currentUser.username}</a>
-        <ul class="user-dropdown" style="display:none;position:absolute;background:#2c3e50;padding:10px;border-radius:4px;">
-          <li style="margin:5px 0;"><a href="#" onclick="logout()">退出登录</a></li>
+        <a href="javascript:void(0)"><i class="fas fa-user-circle"></i> ${currentUser.username}</a>
+        <ul class="user-dropdown" style="display:none;">
+          <li><a href="publish-post.html"><i class="fas fa-pen"></i> 发布帖子</a></li>
+          <li><a href="javascript:void(0)" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 退出登录</a></li>
         </ul>
       `;
       
@@ -113,11 +117,8 @@ function updateNavUserStatus() {
       userItem.addEventListener('mouseleave', function() {
         this.querySelector('.user-dropdown').style.display = 'none';
       });
-      
-      // 更新侧边栏用户信息
-      updateSidebarUserInfo(currentUser);
     } else {
-      // 未登录状态
+      // 未登录状态 - 仅显示登录/注册
       userItem.innerHTML = `
         <a href="login.html"><i class="fas fa-user-circle"></i> 登录/注册</a>
       `;
@@ -125,15 +126,36 @@ function updateNavUserStatus() {
   }
 }
 
-// 更新侧边栏用户信息
-function updateSidebarUserInfo(user) {
-  const sidebarUser = document.querySelector('.sidebar-user');
-  if (sidebarUser) {
-    sidebarUser.innerHTML = `
-      <img src="${user.avatar}" alt="${user.username}" class="avatar">
-      <div class="name">${user.username}</div>
-      <div class="desc">${user.role === 'admin' ? '管理员' : '游戏爱好者'}</div>
-      <a href="publish-post.html" class="btn btn-primary publish-btn">发布帖子</a>
+// 更新侧边栏用户卡片
+function updateSidebarUserCard() {
+  const userCard = document.getElementById('user-sidebar-card');
+  if (!userCard) return;
+  
+  const currentUser = forumData.getCurrentUser();
+  
+  if (currentUser) {
+    // 已登录状态
+    userCard.innerHTML = `
+      <div class="card-header">个人中心</div>
+      <div class="sidebar-user">
+        <img src="${currentUser.avatar}" alt="${currentUser.username}" class="avatar">
+        <div class="name">${currentUser.username}</div>
+        <div class="desc">${currentUser.role === 'admin' ? '管理员' : '游戏爱好者'}</div>
+        <a href="publish-post.html" class="btn btn-primary publish-btn">发布帖子</a>
+      </div>
+    `;
+  } else {
+    // 未登录状态 - 显示登录/注册提示
+    userCard.innerHTML = `
+      <div class="card-header">欢迎来访</div>
+      <div class="sidebar-login-prompt">
+        <div class="icon"><i class="fas fa-user-circle"></i></div>
+        <div class="text">登录后可发布帖子、参与评论</div>
+        <div>
+          <a href="login.html" class="btn btn-primary">登录</a>
+          <a href="register.html" class="btn btn-success">注册</a>
+        </div>
+      </div>
     `;
   }
 }

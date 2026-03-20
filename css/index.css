@@ -5,6 +5,7 @@
   margin-bottom: 20px;
   overflow: hidden;
   position: relative;
+  border-radius: 6px;
 }
 
 .banner img {
@@ -28,6 +29,7 @@
   height: 200px;
   overflow: hidden;
   position: relative;
+  border-radius: 6px;
 }
 
 .featured-item img {
@@ -52,44 +54,7 @@
   font-size: 16px;
 }
 
-/* 版块分类 */
-.forum-categories {
-  margin-bottom: 30px;
-}
-
-.categories-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-}
-
-.category-item {
-  padding: 20px;
-  text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.category-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.category-item .icon {
-  font-size: 30px;
-  margin-bottom: 10px;
-  color: #3498db;
-}
-
-.category-item .name {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.category-item .count {
-  color: #999;
-  font-size: 14px;
-}
+/* 移除旧的版块分类样式 */
 
 /* 帖子列表 */
 .post-list {
@@ -109,6 +74,11 @@
   display: flex;
   padding: 15px;
   border-bottom: 1px solid #eee;
+  transition: background-color 0.3s;
+}
+
+.post-item:hover {
+  background-color: #f8f9fa;
 }
 
 .post-item:last-child {
@@ -141,15 +111,32 @@
   text-decoration: underline;
 }
 
+.post-desc {
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* 官方标准属性，未来会全浏览器支持 */
+  -webkit-box-orient: vertical;
+  box-orient: vertical; /* 官方标准属性 */
+}
+
 .post-meta {
   display: flex;
   color: #999;
   font-size: 14px;
-  margin-top: 10px;
 }
 
 .post-meta span {
   margin-right: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.post-meta span i {
+  margin-right: 5px;
 }
 
 .post-sidebar-card {
@@ -161,11 +148,34 @@
   padding: 20px;
 }
 
+/* 未登录状态的侧边栏样式 */
+.sidebar-login-prompt {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.sidebar-login-prompt .icon {
+  font-size: 50px;
+  color: #3498db;
+  margin-bottom: 15px;
+}
+
+.sidebar-login-prompt .text {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.sidebar-login-prompt .btn {
+  margin: 0 5px;
+}
+
 .sidebar-user .avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
   margin: 0 auto 10px;
+  border: 3px solid #f1f1f1;
 }
 
 .sidebar-user .name {
@@ -176,35 +186,10 @@
 
 .sidebar-user .publish-btn {
   margin-top: 15px;
+  width: 100%;
 }
 
+/* 移除热门排行样式 */
 .hot-rank {
-  padding: 10px;
-}
-
-.hot-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  align-items: center;
-}
-
-.hot-item:last-child {
-  border-bottom: none;
-}
-
-.hot-item .rank {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  text-align: center;
-  background-color: #3498db;
-  color: #fff;
-  border-radius: 50%;
-  margin-right: 10px;
-  font-size: 12px;
-}
-
-.hot-item .title {
-  font-size: 14px;
+  display: none;
 }

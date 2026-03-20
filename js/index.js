@@ -1,10 +1,10 @@
 // 首页脚本
 document.addEventListener('DOMContentLoaded', function() {
   // 初始化数据管理器
-  // 渲染版块分类（带动态帖子数）
-  renderCategories();
+  // 渲染左侧版块侧边栏
+  renderSidebarCategories();
   
-  // 渲染帖子列表
+  // 渲染帖子列表（无僵尸帖）
   renderPostList();
   
   // 模拟精选内容轮播
@@ -12,50 +12,59 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 更新用户登录状态
   updateNavUserStatus();
+  
+  // 更新侧边栏用户卡片
+  updateSidebarUserCard();
 });
 
-// 渲染版块分类
-function renderCategories() {
+// 渲染左侧版块侧边栏
+function renderSidebarCategories() {
   const categories = forumData.getCategories();
-  const categoriesList = document.querySelector('.categories-list');
+  const sidebarList = document.getElementById('sidebar-categories-list');
   
-  if (categoriesList) {
-    categoriesList.innerHTML = '';
+  if (sidebarList) {
+    sidebarList.innerHTML = '';
     
     categories.forEach(category => {
       const categoryItem = document.createElement('div');
-      categoryItem.className = 'category-item card';
+      categoryItem.className = 'sidebar-category-item';
       categoryItem.innerHTML = `
-        <div class="icon"><i class="${category.icon}"></i></div>
-        <div class="name">${category.name}</div>
-        <div class="count">帖子数：${category.postCount}</div>
+        <i class="${category.icon} icon"></i>
+        <div class="info">
+          <div class="name">${category.name}</div>
+          <div class="count">帖子数：${category.postCount}</div>
+        </div>
       `;
-      categoriesList.appendChild(categoryItem);
+      sidebarList.appendChild(categoryItem);
       
       // 添加点击事件
       categoryItem.addEventListener('click', function() {
-        // 可以跳转到对应版块的帖子列表页
-        alert(`进入【${category.name}】版块`);
+        // 可以在这里实现按版块筛选帖子
+        alert(`查看【${category.name}】版块的帖子`);
       });
     });
   }
 }
 
-// 渲染帖子列表
+// 渲染帖子列表（仅显示用户创建的真实帖子）
 function renderPostList() {
   const posts = forumData.getPosts();
-  const postListContainer = document.querySelector('.post-main .card .card-body');
+  const postContainer = document.getElementById('post-list-container');
+  const paginationContainer = document.getElementById('pagination-container');
   
-  if (postListContainer) {
-    // 清空原有静态内容
-    postListContainer.innerHTML = '';
+  if (postContainer) {
+    // 清空容器
+    postContainer.innerHTML = '';
+    paginationContainer.innerHTML = '';
     
     if (posts.length === 0) {
-      // 无帖子时显示提示
-      postListContainer.innerHTML = `
-        <div style="text-align:center;padding:20px;color:#999;">
-          <i class="fas fa-file-alt" style="font-size:40px;margin-bottom:10px;"></i>
-          <p>暂无帖子，快来发布第一个帖子吧！</p>
+      // 无任何帖子时显示提示
+      postContainer.innerHTML = `
+        <div style="text-align:center;padding:50px;color:#999;">
+          <i class="fas fa-file-alt" style="font-size:60px;margin-bottom:20px;"></i>
+          <p style="font-size:18px;margin-bottom:10px;">暂无帖子</p>
+          <p style="font-size:14px;margin-bottom:20px;">快来发布第一个帖子吧！</p>
+          <a href="login.html" class="btn btn-primary">登录发布</a>
         </div>
       `;
       return;
@@ -64,6 +73,7 @@ function renderPostList() {
     // 倒序显示（最新的在前）
     const sortedPosts = [...posts].sort((a, b) => b.id - a.id);
     
+    // 渲染帖子
     sortedPosts.forEach(post => {
       // 格式化时间
       const createTime = new Date(post.createTime);
@@ -92,8 +102,13 @@ function renderPostList() {
         </div>
       `;
       
-      postListContainer.appendChild(postItem);
+      postContainer.appendChild(postItem);
     });
+    
+    // 渲染分页（简单实现）
+    paginationContainer.innerHTML = `
+      <li class="active"><a href="#">1</a></li>
+    `;
   }
 }
 
