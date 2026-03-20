@@ -1,4 +1,4 @@
-# GameHub Forum（游戏交流论坛）
+# game-Veyra（游戏交流论坛）
 
 这是一个极简优雅风格的游戏交流论坛前端示例站，使用 `React + TypeScript + Vite` 构建，结合 `Tailwind CSS` 做版式与配色，并使用 `Framer Motion + GSAP + Lenis` 实现滚动与进入动画。
 
@@ -24,7 +24,7 @@
 ## 3. 网站内容与可用模块（当前已实现）
 
 ### 3.1 Hero 区（首页顶部）
-- 巨幕标题“GameHub Forum”
+- 巨幕标题“game-Veyra”
 - 顶部半透明导航栏与搜索输入框
 - 右侧登录/发表帖子/退出按钮
 

@@ -74,7 +74,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                 type: 'system',
                 postId: undefined,
                 commentId: undefined,
-                content: '欢迎回到 GameHub Forum！',
+                content: '欢迎回到 game-Veyra！',
                 createdAtISO: new Date().toISOString(),
                 isRead: false,
               },
