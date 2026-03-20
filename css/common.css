@@ -1,0 +1,156 @@
+/* 通用样式 */
+.container {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+/* 导航栏样式 */
+.nav {
+  height: 60px;
+  background-color: #2c3e50;
+  color: #fff;
+  line-height: 60px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.nav .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.nav-list {
+  display: flex;
+}
+
+.nav-list li {
+  margin: 0 15px;
+}
+
+.nav-list li a {
+  color: #fff;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.nav-list li a:hover {
+  color: #3498db;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 200px;
+  height: 35px;
+  padding: 0 10px;
+  border-radius: 3px 0 0 3px;
+  border: 1px solid #ddd;
+}
+
+.search-btn {
+  height: 35px;
+  width: 80px;
+  background-color: #3498db;
+  color: #fff;
+  border-radius: 0 3px 3px 0;
+  transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+  background-color: #2980b9;
+}
+
+/* 主内容区通用样式 */
+.main {
+  margin-top: 80px;
+  padding-bottom: 50px;
+}
+
+/* 按钮通用样式 */
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-success {
+  background-color: #2ecc71;
+  color: #fff;
+}
+
+.btn-success:hover {
+  background-color: #27ae60;
+}
+
+/* 卡片通用样式 */
+.card {
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+/* 分页通用样式 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination li {
+  margin: 0 5px;
+}
+
+.pagination li a {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.pagination li a:hover,
+.pagination li.active a {
+  background-color: #3498db;
+  color: #fff;
+  border-color: #3498db;
+}

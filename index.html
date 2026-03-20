@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameForum - 游戏爱好者的交流天堂</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/index.css">
+  <!-- 引入字体图标 -->
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="nav">
+    <div class="container">
+      <a href="index.html" class="logo">GameForum</a>
+      <ul class="nav-list">
+        <li><a href="index.html"><i class="fas fa-home"></i> 首页</a></li>
+        <li><a href="#"><i class="fas fa-fire"></i> 热门</a></li>
+        <li><a href="#"><i class="fas fa-trophy"></i> 赛事</a></li>
+        <li><a href="#"><i class="fas fa-gamepad"></i> 游戏库</a></li>
+        <li><a href="#"><i class="fas fa-user-circle"></i> 我的</a></li>
+      </ul>
+      <div class="search-box">
+        <input type="text" class="search-input" placeholder="搜索游戏、帖子、用户...">
+        <button class="search-btn"><i class="fas fa-search"></i> 搜索</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="main">
+    <div class="container">
+      <!-- 轮播图 -->
+      <div class="banner">
+        <img src="images/banner.jpg" alt="游戏论坛banner">
+      </div>
+
+      <!-- 精选内容 -->
+      <section class="featured card">
+        <div class="card-header">精选内容</div>
+        <div class="card-body">
+          <div class="featured-list">
+            <div class="featured-item">
+              <img src="https://picsum.photos/800/400?random=1" alt="精选1">
+              <div class="title">2024年最值得玩的10款单机游戏</div>
+            </div>
+            <div class="featured-item">
+              <img src="https://picsum.photos/800/400?random=2" alt="精选2">
+              <div class="title">英雄联盟S14全球总决赛分析</div>
+            </div>
+            <div class="featured-item">
+              <img src="https://picsum.photos/800/400?random=3" alt="精选3">
+              <div class="title">原神4.2版本新角色与剧情解析</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 版块分类 -->
+      <section class="forum-categories">
+        <div class="card">
+          <div class="card-header">版块分类</div>
+          <div class="card-body">
+            <div class="categories-list">
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-gamepad"></i></div>
+                <div class="name">热门网游</div>
+                <div class="count">帖子数：12580</div>
+              </div>
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-laptop"></i></div>
+                <div class="name">单机游戏</div>
+                <div class="count">帖子数：8920</div>
+              </div>
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+                <div class="name">手机游戏</div>
+                <div class="count">帖子数：15680</div>
+              </div>
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-trophy"></i></div>
+                <div class="name">电竞赛事</div>
+                <div class="count">帖子数：7850</div>
+              </div>
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-headset"></i></div>
+                <div class="name">游戏攻略</div>
+                <div class="count">帖子数：9630</div>
+              </div>
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-comment-alt"></i></div>
+                <div class="name">闲聊杂谈</div>
+                <div class="count">帖子数：21580</div>
+              </div>
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="name">交易专区</div>
+                <div class="count">帖子数：4580</div>
+              </div>
+              <div class="category-item card">
+                <div class="icon"><i class="fas fa-question-circle"></i></div>
+                <div class="name">问题求助</div>
+                <div class="count">帖子数：6780</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 帖子列表 -->
+      <section class="post-list">
+        <div class="post-main">
+          <div class="card">
+            <div class="card-header">最新帖子</div>
+            <div class="card-body">
+              <!-- 帖子项1 -->
+              <div class="post-item">
+                <div class="post-avatar">
+                  <img src="images/default-avatar.png" alt="用户头像">
+                </div>
+                <div class="post-content">
+                  <div class="post-title">
+                    <a href="post-detail.html">黑神话：悟空 全BOSS打法攻略大全</a>
+                  </div>
+                  <div class="post-desc">
+                    整理了黑神话悟空中所有BOSS的详细打法，包括技能躲避、装备选择、加点建议等，新手必看！
+                  </div>
+                  <div class="post-meta">
+                    <span><i class="fas fa-user"></i> 游戏达人</span>
+                    <span><i class="fas fa-clock"></i> 2024-03-15 10:20</span>
+                    <span><i class="fas fa-eye"></i> 1258</span>
+                    <span><i class="fas fa-comment"></i> 328</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 帖子项2 -->
+              <div class="post-item">
+                <div class="post-avatar">
+                  <img src="images/default-avatar.png" alt="用户头像">
+                </div>
+                <div class="post-content">
+                  <div class="post-title">
+                    <a href="post-detail.html">2024年Steam春季特惠值得入手的游戏推荐</a>
+                  </div>
+                  <div class="post-desc">
+                    Steam春季特惠已经开始，整理了一批折扣力度大、口碑好的游戏，涵盖各种类型，总有一款适合你！
+                  </div>
+                  <div class="post-meta">
+                    <span><i class="fas fa-user"></i> 剁手玩家</span>
+                    <span><i class="fas fa-clock"></i> 2024-03-14 15:30</span>
+                    <span><i class="fas fa-eye"></i> 896</span>
+                    <span><i class="fas fa-comment"></i> 156</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 帖子项3 -->
+              <div class="post-item">
+                <div class="post-avatar">
+                  <img src="images/default-avatar.png" alt="用户头像">
+                </div>
+                <div class="post-content">
+                  <div class="post-title">
+                    <a href="post-detail.html">王者荣耀新赛季打野思路分享</a>
+                  </div>
+                  <div class="post-desc">
+                    新赛季野区改动较大，分享一下最新的打野思路、英雄选择和刷野路线，帮助大家快速上分！
+                  </div>
+                  <div class="post-meta">
+                    <span><i class="fas fa-user"></i> 王者大神</span>
+                    <span><i class="fas fa-clock"></i> 2024-03-13 09:15</span>
+                    <span><i class="fas fa-eye"></i> 1568</span>
+                    <span><i class="fas fa-comment"></i> 428</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 分页 -->
+          <ul class="pagination">
+            <li class="active"><a href="#">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+            <li><a href="#">下一页</a></li>
+          </ul>
+        </div>
+
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+          <!-- 用户信息 -->
+          <div class="card post-sidebar-card">
+            <div class="sidebar-user">
+              <img src="images/default-avatar.png" alt="用户头像" class="avatar">
+              <div class="name">游客</div>
+              <div class="desc">游戏爱好者</div>
+              <a href="publish-post.html" class="btn btn-primary publish-btn">发布帖子</a>
+            </div>
+          </div>
+
+          <!-- 热门排行 -->
+          <div class="card post-sidebar-card">
+            <div class="card-header">热门帖子排行</div>
+            <div class="hot-rank">
+              <div class="hot-item">
+                <div class="rank">1</div>
+                <div class="title">黑神话：悟空 全BOSS打法攻略大全</div>
+              </div>
+              <div class="hot-item">
+                <div class="rank">2</div>
+                <div class="title">王者荣耀新赛季打野思路分享</div>
+              </div>
+              <div class="hot-item">
+                <div class="rank">3</div>
+                <div class="title">2024年Steam春季特惠值得入手的游戏推荐</div>
+              </div>
+              <div class="hot-item">
+                <div class="rank">4</div>
+                <div class="title">原神4.2版本新角色抽取建议</div>
+              </div>
+              <div class="hot-item">
+                <div class="rank">5</div>
+                <div class="title">CS2最新职业选手设置分享</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>
