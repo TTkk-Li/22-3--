@@ -1,46 +1,70 @@
-/* 首页样式 */
+/* 首页样式 - 简约暗金现代风格 */
 /* 轮播图 */
 .banner {
-  height: 400px;
-  margin-bottom: 20px;
+  height: 380px;
+  margin-bottom: 30px;
   overflow: hidden;
   position: relative;
-  border-radius: 6px;
+  border-radius: 16px;
+  box-shadow: 0 10px 50px var(--shadow-color);
 }
 
 .banner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: brightness(0.7);
 }
 
-/* 精选内容 */
+.banner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(transparent, var(--bg-primary));
+}
+
+/* 精选内容 - 暗金风格 */
 .featured {
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 .featured-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 25px;
 }
 
 .featured-item {
-  height: 200px;
+  height: 220px;
   overflow: hidden;
   position: relative;
-  border-radius: 6px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 5px 25px var(--shadow-color);
+  border: 1px solid var(--border-color);
+}
+
+.featured-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(201, 169, 98, 0.2);
+  border-color: var(--accent-gold);
 }
 
 .featured-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s;
+  transition: transform 0.6s ease;
+  filter: brightness(0.6);
 }
 
 .featured-item:hover img {
   transform: scale(1.1);
+  filter: brightness(0.8);
 }
 
 .featured-item .title {
@@ -48,22 +72,35 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 10px;
-  background-color: rgba(0,0,0,0.7);
-  color: #fff;
-  font-size: 16px;
+  padding: 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
+  color: var(--text-primary);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
-/* 移除旧的版块分类样式 */
+.featured-item .view-count {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dark) 100%);
+  color: var(--bg-primary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
 
-/* 帖子列表 */
+/* 帖子列表 - 暗金风格 */
 .post-list {
   display: flex;
 }
 
 .post-main {
   flex: 4;
-  margin-right: 20px;
+  margin-right: 25px;
 }
 
 .sidebar {
@@ -72,25 +109,37 @@
 
 .post-item {
   display: flex;
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.3s;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .post-item:hover {
-  background-color: #f8f9fa;
+  background-color: var(--bg-hover);
+  transform: translateX(5px);
 }
 
 .post-item:last-child {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
 .post-avatar {
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 15px;
+  margin-right: 20px;
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 0 15px rgba(201, 169, 98, 0.2);
+}
+
+.post-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .post-content {
@@ -98,98 +147,136 @@
 }
 
 .post-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 19px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
 .post-title a {
-  color: #3498db;
+  color: var(--text-primary);
 }
 
 .post-title a:hover {
-  text-decoration: underline;
+  color: var(--accent-gold);
 }
 
 .post-desc {
-  color: #666;
-  line-height: 1.5;
-  margin-bottom: 10px;
-  overflow: hidden;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2; /* 官方标准属性，未来会全浏览器支持 */
   -webkit-box-orient: vertical;
-  box-orient: vertical; /* 官方标准属性 */
+  overflow: hidden;
+  font-size: 14px;
 }
 
 .post-meta {
   display: flex;
-  color: #999;
-  font-size: 14px;
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 .post-meta span {
-  margin-right: 15px;
+  margin-right: 20px;
   display: flex;
   align-items: center;
 }
 
 .post-meta span i {
-  margin-right: 5px;
+  margin-right: 6px;
+  color: var(--accent-gold);
 }
 
 .post-sidebar-card {
+  margin-bottom: 25px;
+}
+
+/* 未登录状态的侧边栏样式 - 暗金风格 */
+.sidebar-login-prompt {
+  text-align: center;
+  padding: 35px 25px;
+}
+
+.sidebar-login-prompt .icon {
+  font-size: 55px;
+  color: var(--accent-gold);
   margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(201, 169, 98, 0.3);
+}
+
+.sidebar-login-prompt .text {
+  font-size: 15px;
+  margin-bottom: 25px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.sidebar-login-prompt .btn {
+  margin: 0 8px;
 }
 
 .sidebar-user {
   text-align: center;
-  padding: 20px;
-}
-
-/* 未登录状态的侧边栏样式 */
-.sidebar-login-prompt {
-  text-align: center;
-  padding: 30px 20px;
-}
-
-.sidebar-login-prompt .icon {
-  font-size: 50px;
-  color: #3498db;
-  margin-bottom: 15px;
-}
-
-.sidebar-login-prompt .text {
-  font-size: 16px;
-  margin-bottom: 20px;
-  color: #666;
-}
-
-.sidebar-login-prompt .btn {
-  margin: 0 5px;
+  padding: 30px 25px;
 }
 
 .sidebar-user .avatar {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
-  margin: 0 auto 10px;
-  border: 3px solid #f1f1f1;
+  margin: 0 auto 15px;
+  border: 3px solid var(--accent-gold);
+  box-shadow: 0 0 25px rgba(201, 169, 98, 0.3);
 }
 
 .sidebar-user .name {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: bold;
   margin-bottom: 5px;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+
+.sidebar-user .desc {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .sidebar-user .publish-btn {
-  margin-top: 15px;
+  margin-top: 10px;
   width: 100%;
 }
 
 /* 移除热门排行样式 */
 .hot-rank {
   display: none;
+}
+
+/* 空状态样式 - 暗金风格 */
+.empty-state {
+  text-align: center;
+  padding: 60px 40px;
+  color: var(--text-muted);
+}
+
+.empty-state i {
+  font-size: 70px;
+  color: var(--accent-gold);
+  margin-bottom: 25px;
+  opacity: 0.6;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+.empty-state .sub-text {
+  font-size: 14px;
+  margin-bottom: 30px;
+  color: var(--text-muted);
 }
