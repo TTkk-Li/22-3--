@@ -174,9 +174,9 @@ export function UserCenterDialog({ open, onOpenChange, onRequestLogin }: Props) 
                         <button
                           className="pill-button"
                           style={{ borderRadius: 9999 }}
-                          onClick={() => {
+                          onClick={async () => {
                             if (!window.confirm('确定删除该帖子吗？')) return;
-                            const res = actions.deletePost(p.id);
+                            const res = await actions.deletePost(p.id);
                             if (!res.ok) alert(res.error ?? '删除失败');
                           }}
                         >

@@ -93,10 +93,10 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
                   <button
                     className="pill-button"
                     style={{ borderRadius: 9999 }}
-                    onClick={() => {
+                    onClick={async () => {
                       if (!currentUserId) return onRequestLogin();
                       setActionError(null);
-                      const res = actions.toggleLike(post.id);
+                      const res = await actions.toggleLike(post.id);
                       if (!res.ok) setActionError(res.error ?? '点赞失败');
                     }}
                   >
@@ -110,10 +110,10 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
                     <button
                       className="pill-button"
                       style={{ borderRadius: 9999 }}
-                      onClick={() => {
+                      onClick={async () => {
                         if (!window.confirm('确定删除该帖子吗？此操作会同时删除评论与回复。')) return;
                         setActionError(null);
-                        const res = actions.deletePost(post.id);
+                        const res = await actions.deletePost(post.id);
                         if (!res.ok) setActionError(res.error ?? '删除失败');
                         else onOpenChange(false);
                       }}
@@ -137,10 +137,10 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
               ) : (
                 <form
                   className="mt-4 space-y-2"
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
                     setError(null);
-                    const res = actions.addComment(post.id, commentText);
+                    const res = await actions.addComment(post.id, commentText);
                     if (!res.ok) setError(res.error ?? '评论失败');
                     else setCommentText('');
                   }}
@@ -174,9 +174,9 @@ export function PostDetailDialog({ open, onOpenChange, postId, onRequestLogin }:
                       setReplyTo={setReplyTo}
                       replyText={replyText}
                       setReplyText={setReplyText}
-                      onReply={(text) => {
+                      onReply={async (text) => {
                         if (!postId) return;
-                        const res = actions.addReply(postId, c.id, text);
+                        const res = await actions.addReply(postId, c.id, text);
                         if (!res.ok) {
                           setError(res.error ?? '回复失败');
                           return;

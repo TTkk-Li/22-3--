@@ -1,17 +1,11 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { ForumComment, ForumPost, ForumReply, ForumUser } from './types';
-import {
-  addReplyToComment,
-  formatTimeAgo,
-  loadForumState,
-  nextId,
-  saveForumState,
-  type ForumPersistedState,
-} from './forumStorage';
+import { formatTimeAgo } from './forumStorage';
+import { forumApi } from './api';
 
 type ForumActions = {
-  login: (username: string, password: string) => { ok: boolean; error?: string };
-  register: (username: string, password: string) => { ok: boolean; error?: string };
+  login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  register: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   createPost: (input: {
     categoryId: string;
@@ -22,20 +16,26 @@ type ForumActions = {
     tag?: string;
     audioDataUrl?: string;
     audioFileName?: string;
-  }) => { ok: boolean; error?: string; post?: ForumPost };
-  addComment: (postId: string, content: string) => { ok: boolean; error?: string };
+  }) => Promise<{ ok: boolean; error?: string; post?: ForumPost }>;
+  addComment: (postId: string, content: string) => Promise<{ ok: boolean; error?: string }>;
   addReply: (
     postId: string,
     commentId: string,
     content: string
-  ) => { ok: boolean; error?: string };
-  toggleLike: (postId: string) => { ok: boolean; error?: string };
-  deletePost: (postId: string) => { ok: boolean; error?: string };
+  ) => Promise<{ ok: boolean; error?: string }>;
+  toggleLike: (postId: string) => Promise<{ ok: boolean; error?: string }>;
+  deletePost: (postId: string) => Promise<{ ok: boolean; error?: string }>;
   markNotificationsRead: (ids: string[]) => void;
   clearReadNotifications: () => void;
 };
 
-type ForumContextValue = ForumPersistedState & {
+type ForumContextValue = {
+  users: ForumUser[];
+  currentUserId: string | null;
+  posts: ForumPost[];
+  comments: ForumComment[];
+  likes: { postId: string; userId: string; createdAtISO: string }[];
+  notifications: any[];
   actions: ForumActions;
   formatTimeAgo: (iso: string) => string;
   getUserById: (id: string) => ForumUser | undefined;
@@ -46,272 +46,129 @@ type ForumContextValue = ForumPersistedState & {
 const ForumContext = createContext<ForumContextValue | null>(null);
 
 export function ForumProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<ForumPersistedState>(() => loadForumState());
+  const [users, setUsers] = useState<ForumUser[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [comments, setComments] = useState<ForumComment[]>([]);
+  const [likes, setLikes] = useState<{ postId: string; userId: string; createdAtISO: string }[]>([]);
+  const [notifications] = useState<any[]>([]);
 
-  const persist = (next: ForumPersistedState) => {
-    setState(next);
-    saveForumState(next);
+  useEffect(() => {
+    (async () => {
+      const postsRes = await forumApi.getPosts();
+      if (postsRes.ok && postsRes.data) {
+        setPosts(postsRes.data.posts);
+      }
+      const likesRes = await forumApi.getLikes();
+      if (likesRes.ok && likesRes.data) {
+        setLikes(likesRes.data.likes);
+      }
+    })();
+  }, []);
+
+  const refreshComments = async (postId: string) => {
+    const res = await forumApi.getComments(postId);
+    if (!res.ok || !res.data) return;
+
+    setComments((prev) => {
+      const others = prev.filter((c) => c.postId !== postId);
+      return [...others, ...res.data!.comments];
+    });
   };
 
   const actions: ForumActions = useMemo(
     () => ({
-      login: (username, password) => {
-        const user = state.users.find((u) => u.username === username);
-        if (!user) return { ok: false, error: '用户不存在' };
-        if (user.password !== password) return { ok: false, error: '密码错误' };
-        // 登录后给自己一个轻量系统通知（不覆盖你已有通知）
-        const alreadyHadWelcome = state.notifications.some(
-          (n) => n.type === 'system' && n.toUserId === user.id && n.content.includes('欢迎')
+      login: async (username, password) => {
+        const res = await forumApi.login(username, password);
+        if (!res.ok || !res.data) return { ok: false, error: res.error ?? '登录失败' };
+        const user = res.data.user;
+        setCurrentUserId(user.id);
+        setUsers((prev) => (prev.some((u) => u.id === user.id) ? prev : [...prev, user]));
+        return { ok: true };
+      },
+      register: async (username, password) => {
+        const res = await forumApi.register(username, password);
+        if (!res.ok || !res.data) return { ok: false, error: res.error ?? '注册失败' };
+        const user = res.data.user;
+        setCurrentUserId(user.id);
+        setUsers((prev) => (prev.some((u) => u.id === user.id) ? prev : [...prev, user]));
+        return { ok: true };
+      },
+      logout: () => setCurrentUserId(null),
+      createPost: async (input) => {
+        if (!currentUserId) return { ok: false, error: '请先登录' };
+        const res = await forumApi.createPost({ ...input, authorId: currentUserId });
+        if (!res.ok || !res.data) return { ok: false, error: res.error ?? '发布失败' };
+        setPosts((prev) => [res.data!.post, ...prev]);
+        return { ok: true, post: res.data.post };
+      },
+      addComment: async (postId, content) => {
+        if (!currentUserId) return { ok: false, error: '请先登录发表评论' };
+        const res = await forumApi.createComment(postId, content, currentUserId);
+        if (!res.ok) return { ok: false, error: res.error ?? '评论失败' };
+        await refreshComments(postId);
+        setPosts((prev) =>
+          prev.map((p) => (p.id === postId ? { ...p, stats: { ...p.stats, comments: p.stats.comments + 1 } } : p))
         );
-        const nextNotifications: ForumPersistedState['notifications'] = alreadyHadWelcome
-          ? state.notifications
-          : [
-              ...state.notifications,
-              {
-                id: nextId('n'),
-                toUserId: user.id,
-                fromUserId: undefined,
-                type: 'system',
-                postId: undefined,
-                commentId: undefined,
-                content: '欢迎回到 game-Veyra！',
-                createdAtISO: new Date().toISOString(),
-                isRead: false,
-              },
-            ];
-
-        persist({ ...state, currentUserId: user.id, notifications: nextNotifications });
         return { ok: true };
       },
-      register: (username, password) => {
-        const exist = state.users.some((u) => u.username === username);
-        if (exist) return { ok: false, error: '用户名已存在' };
-        const id = `u-${username}`;
-        const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-          username
-        )}`;
-        const user: ForumUser = { id, username, password, avatarUrl, level: 1 };
-        const systemWelcome = {
-          id: nextId('n'),
-          toUserId: id,
-          type: 'system' as const,
-          content: '注册成功，现在可以开始分享音乐和发帖了。',
-          createdAtISO: new Date().toISOString(),
-          isRead: false,
-        };
-        persist({
-          ...state,
-          users: [...state.users, user],
-          currentUserId: id,
-          notifications: [...state.notifications, systemWelcome],
+      addReply: async (postId, commentId, content) => {
+        if (!currentUserId) return { ok: false, error: '请先登录回复' };
+        const res = await forumApi.createReply(postId, commentId, content, currentUserId);
+        if (!res.ok) return { ok: false, error: res.error ?? '回复失败' };
+        await refreshComments(postId);
+        return { ok: true };
+      },
+      toggleLike: async (postId) => {
+        if (!currentUserId) return { ok: false, error: '请先登录' };
+        const res = await forumApi.toggleLike(postId, currentUserId);
+        if (!res.ok) return { ok: false, error: res.error ?? '操作失败' };
+        const liked = !!res.data?.liked;
+        setLikes((prev) => {
+          const exists = prev.some((l) => l.postId === postId && l.userId === currentUserId);
+          if (liked && !exists) return [...prev, { postId, userId: currentUserId, createdAtISO: new Date().toISOString() }];
+          if (!liked && exists) return prev.filter((l) => !(l.postId === postId && l.userId === currentUserId));
+          return prev;
         });
-        return { ok: true };
-      },
-      logout: () => {
-        persist({ ...state, currentUserId: null });
-      },
-      createPost: (input) => {
-        const authorId = state.currentUserId;
-        if (!authorId) return { ok: false, error: '请先登录' };
-
-        const postId = nextId('post');
-        const excerpt = input.content.length > 120 ? `${input.content.slice(0, 120)}...` : input.content;
-        const post: ForumPost = {
-          id: postId,
-          categoryId: input.categoryId,
-          title: input.title,
-          content: input.content,
-          excerpt,
-          game: input.game,
-          coverImage: input.coverImage,
-          tag: input.tag,
-          audioDataUrl: input.audioDataUrl,
-          audioFileName: input.audioFileName,
-          authorId,
-          createdAtISO: new Date().toISOString(),
-          stats: { views: 0, likes: 0, comments: 0 },
-        };
-
-        persist({ ...state, posts: [post, ...state.posts] });
-        return { ok: true, post };
-      },
-      addComment: (postId, content) => {
-        const authorId = state.currentUserId;
-        if (!authorId) return { ok: false, error: '请先登录发表评论' };
-        const trimmed = content.trim();
-        if (!trimmed) return { ok: false, error: '评论内容不能为空' };
-
-        const post = state.posts.find((p) => p.id === postId);
-        if (!post) return { ok: false, error: '帖子不存在' };
-
-        const comment: ForumComment = {
-          id: nextId('c'),
-          postId,
-          authorId,
-          content: trimmed,
-          createdAtISO: new Date().toISOString(),
-          replies: [],
-        };
-
-        const nextComments = [...state.comments, comment];
-        const nextPosts = state.posts.map((p) =>
-          p.id === postId ? { ...p, stats: { ...p.stats, comments: p.stats.comments + 1 } } : p
+        setPosts((prev) =>
+          prev.map((p) => {
+            if (p.id !== postId) return p;
+            const delta = liked ? 1 : -1;
+            return { ...p, stats: { ...p.stats, likes: Math.max(0, p.stats.likes + delta) } };
+          })
         );
-
-        // 通知帖子作者
-        const nextNotifications: ForumPersistedState['notifications'] =
-          post.authorId !== authorId
-            ? [
-                ...state.notifications,
-                {
-                  id: nextId('n'),
-                  toUserId: post.authorId,
-                  fromUserId: authorId,
-                  type: 'comment',
-                  postId: post.id,
-                  content: `你的帖子《${post.title}》收到了一条新评论`,
-                  createdAtISO: new Date().toISOString(),
-                  isRead: false,
-                },
-              ]
-            : state.notifications;
-
-        persist({ ...state, comments: nextComments, posts: nextPosts, notifications: nextNotifications });
         return { ok: true };
       },
-      addReply: (postId, commentId, content) => {
-        const authorId = state.currentUserId;
-        if (!authorId) return { ok: false, error: '请先登录回复' };
-        const trimmed = content.trim();
-        if (!trimmed) return { ok: false, error: '回复内容不能为空' };
-
-        const reply: ForumReply = {
-          id: nextId('r'),
-          commentId,
-          authorId,
-          content: trimmed,
-          createdAtISO: new Date().toISOString(),
-        };
-
-        const target = state.comments.find((c) => c.id === commentId && c.postId === postId);
-        if (!target) return { ok: false, error: '评论不存在' };
-
-        const nextComments = state.comments.map((c) => (c.id === commentId ? addReplyToComment(c, reply) : c));
-
-        // 通知评论作者
-        const post = state.posts.find((p) => p.id === postId);
-        const nextNotifications: ForumPersistedState['notifications'] =
-          target.authorId !== authorId && post
-            ? [
-                ...state.notifications,
-                {
-                  id: nextId('n'),
-                  toUserId: target.authorId,
-                  fromUserId: authorId,
-                  type: 'reply',
-                  postId,
-                  commentId,
-                  content: `你收到对《${post.title}》评论的回复`,
-                  createdAtISO: new Date().toISOString(),
-                  isRead: false,
-                },
-              ]
-            : state.notifications;
-
-        persist({ ...state, comments: nextComments, notifications: nextNotifications });
+      deletePost: async (postId) => {
+        if (!currentUserId) return { ok: false, error: '请先登录' };
+        const res = await forumApi.deletePost(postId, currentUserId);
+        if (!res.ok) return { ok: false, error: res.error ?? '删除失败' };
+        setPosts((prev) => prev.filter((p) => p.id !== postId));
+        setComments((prev) => prev.filter((c) => c.postId !== postId));
+        setLikes((prev) => prev.filter((l) => l.postId !== postId));
         return { ok: true };
       },
-      toggleLike: (postId) => {
-        const userId = state.currentUserId;
-        if (!userId) return { ok: false, error: '请先登录' };
-        const post = state.posts.find((p) => p.id === postId);
-        if (!post) return { ok: false, error: '帖子不存在' };
-
-        const exists = state.likes.some((l) => l.postId === postId && l.userId === userId);
-        let nextLikes = state.likes;
-        let nextPosts = state.posts;
-        let nextNotifications = state.notifications;
-
-        if (exists) {
-          nextLikes = state.likes.filter((l) => !(l.postId === postId && l.userId === userId));
-          nextPosts = state.posts.map((p) =>
-            p.id === postId ? { ...p, stats: { ...p.stats, likes: Math.max(0, p.stats.likes - 1) } } : p
-          );
-        } else {
-          const like = {
-            postId,
-            userId,
-            createdAtISO: new Date().toISOString(),
-          };
-          nextLikes = [...state.likes, like];
-          nextPosts = state.posts.map((p) =>
-            p.id === postId ? { ...p, stats: { ...p.stats, likes: p.stats.likes + 1 } } : p
-          );
-
-          if (post.authorId !== userId) {
-            nextNotifications = [
-              ...state.notifications,
-              {
-                id: nextId('n'),
-                toUserId: post.authorId,
-                fromUserId: userId,
-                type: 'like',
-                postId,
-                content: `你的帖子《${post.title}》被点赞了`,
-                createdAtISO: new Date().toISOString(),
-                isRead: false,
-              },
-            ];
-          }
-        }
-
-        persist({ ...state, likes: nextLikes, posts: nextPosts, notifications: nextNotifications });
-        return { ok: true };
-      },
-      deletePost: (postId) => {
-        const userId = state.currentUserId;
-        if (!userId) return { ok: false, error: '请先登录' };
-        const post = state.posts.find((p) => p.id === postId);
-        if (!post) return { ok: false, error: '帖子不存在' };
-        if (post.authorId !== userId) return { ok: false, error: '没有权限删除该帖子' };
-
-        const nextPosts = state.posts.filter((p) => p.id !== postId);
-        const nextComments = state.comments.filter((c) => c.postId !== postId);
-        const nextLikes = state.likes.filter((l) => l.postId !== postId);
-        const nextNotifications = state.notifications.filter((n) => n.postId !== postId);
-
-        persist({
-          ...state,
-          posts: nextPosts,
-          comments: nextComments,
-          likes: nextLikes,
-          notifications: nextNotifications,
-        });
-
-        return { ok: true };
-      },
-      markNotificationsRead: (ids) => {
-        const next = state.notifications.map((n) => (ids.includes(n.id) ? { ...n, isRead: true } : n));
-        persist({ ...state, notifications: next });
-      },
-      clearReadNotifications: () => {
-        const next = state.notifications.filter((n) => !n.isRead);
-        persist({ ...state, notifications: next });
-      },
+      markNotificationsRead: () => {},
+      clearReadNotifications: () => {},
     }),
-    [state]
+    [currentUserId]
   );
 
   const value: ForumContextValue = useMemo(
     () => ({
-      ...state,
+      users,
+      currentUserId,
+      posts,
+      comments,
+      likes,
+      notifications,
       actions,
       formatTimeAgo,
-      getUserById: (id) => state.users.find((u) => u.id === id),
-      getPostById: (id) => state.posts.find((p) => p.id === id),
-      getCommentsByPostId: (postId) => state.comments.filter((c) => c.postId === postId),
+      getUserById: (id) => users.find((u) => u.id === id),
+      getPostById: (id) => posts.find((p) => p.id === id),
+      getCommentsByPostId: (postId) => comments.filter((c) => c.postId === postId),
     }),
-    [state, actions]
+    [users, currentUserId, posts, comments, likes, notifications, actions]
   );
 
   return <ForumContext.Provider value={value}>{children}</ForumContext.Provider>;
@@ -322,4 +179,3 @@ export function useForum() {
   if (!ctx) throw new Error('useForum must be used within ForumProvider');
   return ctx;
 }
-

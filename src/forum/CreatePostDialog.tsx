@@ -44,10 +44,10 @@ export function CreatePostDialog({ open, onOpenChange }: Props) {
 
         <form
           className="space-y-4"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             setError(null);
-            const res = actions.createPost({
+            const res = await actions.createPost({
               categoryId,
               title: title.trim(),
               game: game.trim(),

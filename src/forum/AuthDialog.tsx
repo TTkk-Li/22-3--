@@ -26,8 +26,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   }, [open]);
 
   const helperText = useMemo(() => {
-    // seeded demo users share password = 123456
-    return '演示账号密码：123456（仅用于本地交互演示）';
+    return '注册后即可发帖、评论、点赞';
   }, []);
 
   return (
@@ -38,7 +37,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           <DialogDescription className="mt-1">{helperText}</DialogDescription>
         </DialogHeader>
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="mt-4">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as 'login' | 'register')} className="mt-4">
           <TabsList>
             <TabsTrigger value="login">登录</TabsTrigger>
             <TabsTrigger value="register">注册</TabsTrigger>
@@ -47,10 +46,10 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           <TabsContent value="login" className="mt-4">
             <form
               className="space-y-4"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 setError(null);
-                const res = actions.login(username.trim(), password);
+                const res = await actions.login(username.trim(), password);
                 if (!res.ok) setError(res.error ?? '登录失败');
                 else onOpenChange(false);
               }}
@@ -98,10 +97,10 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           <TabsContent value="register" className="mt-4">
             <form
               className="space-y-4"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 setError(null);
-                const res = actions.register(username.trim(), password);
+                const res = await actions.register(username.trim(), password);
                 if (!res.ok) setError(res.error ?? '注册失败');
                 else onOpenChange(false);
               }}
@@ -148,4 +147,3 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 }
 
 export default AuthDialog;
-
